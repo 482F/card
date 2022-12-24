@@ -26,7 +26,7 @@
           :value="players[id]?.angle"
           @input="changePublic({ [`players-${id}-angle`]: $event })"
         />
-        <card-board class="card-board" :cards="cards" />
+        <card-board class="card-board" :mode="mode" :cards="cards" />
       </template>
     </div>
   </div>
@@ -35,7 +35,7 @@
 <script>
 import EntranceForm from '../components/entrance-form.vue'
 import CardBoard from '../components/card-board.vue'
-import { cards } from '../components/single-card.vue'
+import { cards } from '../components/card/single-card.vue'
 
 const modes = [
   { text: 'uno', value: 'uno' },
