@@ -1,7 +1,7 @@
 <template>
   <div
     class="card-board"
-    :style="{ '--size': size + 'px' }"
+    :style="{ '--size': size + 'px', '--board-angle': angle + 'deg' }"
     ref="cardBoard"
     @mousemove="
       (e) => {
@@ -41,7 +41,7 @@
 
 <script>
 import SingleCard from '../components/card/single-card.vue'
-const size = 800
+const size = 600
 
 export default {
   name: 'CardBoard',
@@ -56,6 +56,10 @@ export default {
     cards: {
       type: Array,
       required: true,
+    },
+    angle: {
+      type: Number,
+      default: 0,
     },
   },
   data() {
@@ -134,6 +138,7 @@ export default {
 .card-board {
   width: var(--size);
   height: var(--size);
+  transform: rotate(var(--board-angle));
   background-color: lightgray;
   position: relative;
   > .single-card {
