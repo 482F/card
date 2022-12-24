@@ -33,6 +33,7 @@
         '--x': card.coord.x - (card.selected ? 4 : 0) + 'px',
         '--y': card.coord.y - (card.selected ? 4 : 0) + 'px',
         '--angle': card.angle + 'deg',
+        '--z-index': card.zIndex,
       }"
       @mousedown="(e) => onMoveStart(e, card)"
     />
@@ -41,7 +42,7 @@
 
 <script>
 import SingleCard from '../components/card/single-card.vue'
-const size = 600
+const size = 800
 
 export default {
   name: 'CardBoard',
@@ -100,6 +101,14 @@ export default {
           this.selecteds = [card]
         }
         card.selected = true
+        const changeObj = {}
+        this.cards
+          .filter((someCard) => card.zIndex < someCard.zIndex)
+          .forEach((card) => {
+            changeObj[`cards-${card.index}-zIndex`] = card.zIndex - 1
+          })
+        changeObj[`cards-${card.index}-zIndex`] = this.cards.length
+        this.$emit('update', changeObj)
       }
       this.selecteds.forEach((selected) => {
         selected.originalCoord = { ...selected.coord }
@@ -153,6 +162,7 @@ export default {
     left: var(--x);
     top: var(--y);
     transform: rotate(var(--angle));
+    z-index: var(--z-index);
   }
 }
 </style>

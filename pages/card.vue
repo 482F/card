@@ -90,6 +90,7 @@ export default {
       handler() {
         this.cards = cards[this.mode].map((card, i) => ({
           index: i,
+          zIndex: i,
           selected: false,
           text: card,
           coord: {
