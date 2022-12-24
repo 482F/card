@@ -3,6 +3,7 @@
     class="uno"
     :class="{
       'has-underline': ['6', '9'].includes(this.char),
+      'selected': card.selected,
     }"
     :color="color"
     :style="{ ...colors, '--color': colors[`--${color}`] }"
@@ -129,7 +130,12 @@ export default {
   position: relative;
   display: flex;
   justify-content: center;
+  box-sizing: content-box;
+  // box-sizing: border-box;
   align-items: center;
+  &.selected {
+    border: 4px solid gray;
+  }
   > .ellipse {
     z-index: -1;
     position: absolute;

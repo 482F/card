@@ -26,9 +26,12 @@
       :key="i"
       :mode="mode"
       :card="card"
+      :class="{
+        selected: card.selected,
+      }"
       :style="{
-        '--x': card.coord.x + 'px',
-        '--y': card.coord.y + 'px',
+        '--x': card.coord.x - (card.selected ? 4 : 0) + 'px',
+        '--y': card.coord.y - (card.selected ? 4 : 0) + 'px',
         '--angle': card.angle + 'deg',
       }"
       @mousedown="(e) => onMoveStart(e, card)"
@@ -77,7 +80,15 @@ export default {
     },
     onMoveStart(e, card) {
       if (!this.selecteds.includes(card)) {
-        this.selecteds = [card]
+        if (e.ctrlKey) {
+          this.selecteds.push(card)
+        } else {
+          this.selecteds.forEach((card) => {
+            card.selected = false
+          })
+          this.selecteds = [card]
+        }
+        card.selected = true
       }
       this.selecteds.forEach((selected) => {
         selected.originalCoord = { ...selected.coord }
