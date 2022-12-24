@@ -1,17 +1,29 @@
 <template>
   <div>
-    <v-select
-      :items="modes"
-      :value="mode"
-      @change="changePublic('mode', $event)"
-      outlined
-      dense
+    <entrance-form
+      v-if="!loggined"
+      :password="password"
+      @update:password="onLogin"
+      :name.sync="name"
     />
-    <card-board :cards="cards" />
+    <template v-else>
+      <v-progress-circular v-if="!ready" interminate />
+      <template v-else>
+        <v-select
+          :items="modes"
+          :value="mode"
+          @change="changePublic({ mode: $event })"
+          outlined
+          dense
+        />
+        <card-board :cards="cards" />
+      </template>
+    </template>
   </div>
 </template>
 
 <script>
+import EntranceForm from '../components/entrance-form.vue'
 import CardBoard from '../components/card-board.vue'
 import { cards } from '../components/single-card.vue'
 
@@ -23,6 +35,7 @@ const modes = [
 export default {
   name: 'Card',
   components: {
+    EntranceForm,
     CardBoard,
   },
   computed: {
@@ -30,8 +43,15 @@ export default {
   },
   data() {
     const mode = modes[0].value
+
+    const name = localStorage.getItem('card--name') ?? ''
+    const password = localStorage.getItem('card--password') ?? ''
     return {
-      socket: new WebSocket('ws://localhost:18245'),
+      loggined: false,
+      ready: false,
+      name,
+      password,
+      socket: null,
       mode,
       cards: [],
     }
@@ -50,30 +70,47 @@ export default {
       },
     },
   },
-  mounted() {
-    this.socket.onmessage = (e) => this.onMessage(e)
-  },
+  mounted() {},
   methods: {
-    send(value) {
-      this.socket.send(JSON.stringify(value))
+    send(key, value) {
+      this.socket.send(key + '-' + JSON.stringify(value))
     },
     onMessage(e) {
       if (!e.data) {
         return
       }
-      const { keys, value } = JSON.parse(e.data)
-      this.changePublic(keys, value, false)
+      const [, key, , rawValue] = e.data.match(/^([^-]+)(-(.+))?$/)
+      const value = rawValue === undefined ? undefined : JSON.parse(rawValue)
+      this[key](value)
     },
-    changePublic(keys, value, broadcast = true) {
-      const splittedKeys = keys.split('-')
-      let targetObj = this
-      splittedKeys.slice(0, -1).forEach((key) => {
-        targetObj = targetObj[key]
+    changeValue(obj) {
+      Object.entries(obj).forEach(([keys, value]) => {
+        const splittedKeys = keys.split('-')
+        let targetObj = this
+        splittedKeys.slice(0, -1).forEach((key) => {
+          targetObj = targetObj[key]
+        })
+        targetObj[splittedKeys.at(-1)] = value
       })
-      targetObj[splittedKeys.at(-1)] = value
+    },
+    changePublic(obj, broadcast = true) {
+      this.changeValue(obj)
       if (broadcast) {
-        this.send({ keys, value })
+        this.send('changePublic', obj)
       }
+    },
+    async onLogin(password) {
+      this.loggined = true
+      this.password = password
+      localStorage.setItem('card--name', this.name)
+      localStorage.setItem('card--password', this.password)
+
+      this.socket = new WebSocket('ws://localhost:18245')
+      this.socket.onmessage = (e) => this.onMessage(e)
+      await new Promise((resolve) => (this.socket.onopen = resolve))
+      this.send('password', this.password)
+      await new Promise((resolve) => (this.initialized = resolve))
+      this.ready = true
     },
   },
 }
