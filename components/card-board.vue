@@ -77,9 +77,16 @@ export default {
   },
   methods: {
     getCoord(e) {
-      return {
-        x: e.clientX - this.$refs.cardBoard.offsetLeft,
-        y: e.clientY - this.$refs.cardBoard.offsetTop,
+      if (e.target.matches('.single-card')) {
+        return {
+          x: e.offsetX + e.target.offsetLeft,
+          y: e.offsetY + e.target.offsetTop,
+        }
+      } else {
+        return {
+          x: e.offsetX,
+          y: e.offsetY,
+        }
       }
     },
     onMoveStart(e, card) {
