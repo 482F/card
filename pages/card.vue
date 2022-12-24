@@ -10,6 +10,13 @@
     <div v-else class="main">
       <v-progress-circular v-if="!ready" indeterminate />
       <template v-else>
+        <card-board
+          class="card-board"
+          :mode="mode"
+          :cards="cards"
+          :angle="players[id]?.angle"
+          @update="changePublic($event)"
+        />
         <v-select
           class="mode-select"
           :items="modes"
@@ -25,13 +32,6 @@
           vertical
           :value="players[id]?.angle"
           @input="changePublic({ [`players-${id}-angle`]: $event })"
-        />
-        <card-board
-          class="card-board"
-          :mode="mode"
-          :cards="cards"
-          :angle="players[id]?.angle"
-          @update="changePublic($event)"
         />
       </template>
     </div>
@@ -182,6 +182,7 @@ export default {
     }
 
     .mode-select {
+      background-color: white;
       grid-row: 1;
       grid-column: 1 / 3;
     }
