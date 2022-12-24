@@ -2,9 +2,10 @@
   <div class="outer">
     <entrance-form
       v-if="!loggined"
-      :password="password"
-      @update:password="onLogin"
+      :password.sync="password"
       :name.sync="name"
+      :color.sync="color"
+      @loggined="onLogin"
     />
     <div v-else class="main">
       <v-progress-circular v-if="!ready" indeterminate />
@@ -58,6 +59,7 @@ export default {
         id: Math.random(),
         name: '',
         password: '',
+        color: '#FF0000',
       }).map(([key, defaultValue]) => [
         key,
         localStorage.getItem(`card--${key}`) ?? defaultValue,
@@ -128,11 +130,11 @@ export default {
       this.changeValue(obj)
       this.send('changePublic', obj)
     },
-    async onLogin(password) {
+    async onLogin() {
       this.loggined = true
-      this.password = password
       localStorage.setItem('card--name', this.name)
       localStorage.setItem('card--password', this.password)
+      localStorage.setItem('card--color', this.color)
 
       this.socket = new WebSocket('ws://localhost:18245')
       this.socket.onmessage = (e) => this.onMessage(e)
@@ -143,6 +145,7 @@ export default {
       if (!this.players[this.id]) {
         this.changePublic({
           [`players-${this.id}-angle`]: 0,
+          [`players-${this.id}-color`]: this.color,
         })
       }
       this.ready = true
