@@ -14,6 +14,11 @@
         onMoveEnd(e)
       }
     "
+    @wheel="
+      (e) => {
+        onWheel(e)
+      }
+    "
   >
     <single-card
       class="single-card"
@@ -24,6 +29,7 @@
       :style="{
         '--x': card.coord.x + 'px',
         '--y': card.coord.y + 'px',
+        '--angle': card.angle + 'deg',
       }"
       @mousedown="(e) => onMoveStart(e, card)"
     />
@@ -97,6 +103,18 @@ export default {
     onMoveEnd() {
       this.dragging = false
     },
+    onWheel(e) {
+      if (this.dragging) {
+        this.rotateSelecteds(e.deltaY / 100)
+      }
+    },
+    rotateSelecteds(sign) {
+      const changeObj = {}
+      this.selecteds.forEach((selected) => {
+        changeObj[`cards-${selected.index}-angle`] = selected.angle + 30 * sign
+      })
+      this.$emit('update', changeObj)
+    },
   },
 }
 </script>
@@ -111,6 +129,7 @@ export default {
     position: absolute;
     left: var(--x);
     top: var(--y);
+    transform: rotate(var(--angle));
   }
 }
 </style>
