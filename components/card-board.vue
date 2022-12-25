@@ -5,6 +5,7 @@
       (e) => {
         e.preventDefault()
         if (!e.target.closest('.single-card')) return
+        this.contextE = e
         menu.show = true
         menu.x = e.clientX + 2
         menu.y = e.clientY + 2
@@ -44,8 +45,8 @@
         selected: card.selected,
       }"
       :style="{
-        '--x': card.coord.x - (card.selected ? 4 : 0) + 'px',
-        '--y': card.coord.y - (card.selected ? 4 : 0) + 'px',
+        '--x': card.coord.x - (card.selected ? 3 : 0) + 'px',
+        '--y': card.coord.y - (card.selected ? 3 : 0) + 'px',
         '--angle': card.angle + 'deg',
         '--z-index': card.zIndex,
       }"
@@ -126,6 +127,7 @@ export default {
   },
   data() {
     return {
+      contextE: null,
       dragging: false,
       selecting: false,
       menu: {
@@ -170,13 +172,17 @@ export default {
           items: [
             {
               label: '扇状に並べる',
-              handler: (e) =>
-                this.lineUp(this.selecteds, e.clientX, e.clientY, 'fan'),
+              handler: () => this.lineUp(this.selecteds, this.contextE, 'fan'),
             },
             {
               label: '水平に並べる',
-              handler: (e) =>
-                this.lineUp(this.selecteds, e.clientX, e.clientY, 'horizon'),
+              handler: () =>
+                this.lineUp(this.selecteds, this.contextE, 'horizon'),
+            },
+            {
+              label: '重ねる',
+              handler: () =>
+                this.lineUp(this.selecteds, this.contextE, 'pile'),
             },
           ],
         },
@@ -209,6 +215,10 @@ export default {
               handler: () => this.setCardSide(this.selecteds, true),
             },
           ],
+        },
+        {
+          label: 'シャッフルする',
+          handler: () => this.shuffleCards(this.selecteds),
         },
         {
           label: '分割する',
@@ -256,13 +266,8 @@ export default {
               return {
                 label: '',
                 component,
-                handler: (e) => {
-                  this.separateCards(
-                    this.selecteds,
-                    leftNum,
-                    e.clientX,
-                    e.clientY
-                  )
+                handler: () => {
+                  this.separateCards(this.selecteds, leftNum, this.contextE)
                 },
               }
             })(),
@@ -363,6 +368,20 @@ export default {
         y: e.clientY - this.$refs.cardBoard.offsetTop,
       }
     },
+    getAngledCoord(e) {
+      const rawCoord = this.getSelectCoord(e)
+      const coord = (() => {
+        const x = rawCoord.x - this.boardHalfSize
+        const y = rawCoord.y - this.boardHalfSize
+        const r = Math.sqrt(x ** 2 + y ** 2)
+        const theta = Math.atan2(y, x) - (this.angle * Math.PI) / 180
+        return {
+          x: Math.cos(theta) * r + this.boardHalfSize,
+          y: Math.sin(theta) * r + this.boardHalfSize,
+        }
+      })()
+      return coord
+    },
     getCoord(e) {
       if (e.target.matches('.single-card')) {
         const angle = Number(
@@ -428,8 +447,19 @@ export default {
         this.selectCoords.end.y
       )
     },
-    onMoveStart(e, card) {
+    placeToTop(cards) {
       const changeObj = {}
+      cards.forEach((card) => {
+        this.cards
+          .filter((someCard) => card.zIndex < someCard.zIndex)
+          .forEach((card) => {
+            changeObj[`cards-${card.index}-zIndex`] = card.zIndex
+          })
+        changeObj[`cards-${card.index}-zIndex`] = this.cards.length
+      })
+      this.$emit('update', changeObj)
+    },
+    onMoveStart(e, card) {
       if (!this.selecteds.includes(card)) {
         if (e.ctrlKey) {
           this.selecteds.push(card)
@@ -441,14 +471,7 @@ export default {
         }
         card.selected = true
       }
-
-      this.cards
-        .filter((someCard) => card.zIndex < someCard.zIndex)
-        .forEach((card) => {
-          changeObj[`cards-${card.index}-zIndex`] = card.zIndex - 1
-        })
-      changeObj[`cards-${card.index}-zIndex`] = this.cards.length
-      this.$emit('update', changeObj)
+      this.placeToTop([card])
 
       this.selecteds.forEach((selected) => {
         selected.originalCoord = { ...selected.coord }
@@ -498,8 +521,43 @@ export default {
       })
       this.$emit('update', changeObj)
     },
-    lineUp(cards, x, y, mode) {
-      console.log(cards)
+    lineUp(cards, e, mode) {
+      const coord = this.getAngledCoord(e)
+      if (mode === 'horizon') {
+        const delta = 24
+        const lineNum = 24
+        const deltas = Object.fromEntries(
+          [
+            ['x', -this.angle],
+            ['y', -this.angle + 90],
+          ].map(([label, angle]) => {
+            const radian = (angle * Math.PI) / 180
+            return [
+              label,
+              {
+                x: Math.cos(radian) * delta,
+                y: Math.sin(radian) * delta,
+              },
+            ]
+          })
+        )
+        cards.forEach((card, i) => {
+          const col = (i % lineNum) + Math.floor(i / lineNum) / 2
+          const row = Math.floor(i / lineNum)
+          card.coord.x = Math.round(
+            coord.x + col * deltas.x.x + row * deltas.y.x
+          )
+          card.coord.y = Math.round(
+            coord.y + col * deltas.x.y + row * deltas.y.y
+          )
+          card.angle = (-this.angle + 360) % 360
+        })
+      } else if (mode === 'fan') {
+        console.log('fan')
+      } else if (mode === 'pile') {
+        console.log('pile')
+      }
+      this.placeToTop(cards)
     },
     setCardSide(cards, isFront, players) {
       players ??= this.sortedPlayers
@@ -513,8 +571,16 @@ export default {
       })
       this.$emit('update', changeObj)
     },
-    separateCards(cards, leftNum, x, y) {
-      console.log({ cards, leftNum, x, y })
+    shuffleCards(cards) {},
+    separateCards(cards, leftNum, e) {
+      const left = cards.slice(0, leftNum)
+      const right = cards.slice(leftNum)
+      this.lineUp(left, { clientX: e.clientX, clientY: e.clientY }, 'horizon')
+      this.lineUp(
+        right,
+        { clientX: e.clientX, clientY: e.clientY + 300 },
+        'horizon'
+      )
     },
   },
 }
