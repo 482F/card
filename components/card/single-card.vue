@@ -34,6 +34,7 @@ export default {
 }
 export const cards = {
   uno: (() => {
+    return ['8r']
     const nums = Array(10)
       .fill(0)
       .map((_, i) => i.toString())

@@ -67,6 +67,7 @@
 <script>
 import SingleCard from '../components/card/single-card.vue'
 import PlayerPositions from '../components/player-positions.vue'
+import { isRectangleCollide } from '../utils/vectors.js'
 const cardSizes = {
   uno: 120,
   trump: 120,
@@ -144,6 +145,7 @@ export default {
         this.tempSelecteds.forEach((card) => {
           card.selected = false
         })
+
         const originalSelecteds = this.additionalSelect ? this.selecteds : []
 
         const selector = {}
@@ -156,21 +158,38 @@ export default {
           y: selector.length.height / 2 + this.selectCoords.min.y,
         }
 
+        const selectRect = [
+          { x: this.selectCoords.max.x, y: this.selectCoords.max.y },
+          { x: this.selectCoords.min.x, y: this.selectCoords.max.y },
+          { x: this.selectCoords.min.x, y: this.selectCoords.min.y },
+          { x: this.selectCoords.max.x, y: this.selectCoords.min.y },
+        ]
+        const r = Math.sqrt(this.cardHalfWidth ** 2 + this.cardHalfHeight ** 2)
+
         this.tempSelecteds = [
-          ...this.cards.filter((card, i) => {
+          ...this.cards.filter((card) => {
             const cardCenter = {
               x: card.coord.x + this.cardHalfWidth,
               y: card.coord.y + this.cardHalfHeight,
             }
-            const distance = {
-              x: Math.abs(selector.center.x - cardCenter.x),
-              y: Math.abs(selector.center.y - cardCenter.y),
-            }
-            const lengthSum = {
-              x: this.cardWidth + selector.length.width,
-              y: this.cardHeight + selector.length.height,
-            }
-            return distance.x < lengthSum.x / 2 && distance.y < lengthSum.y / 2
+
+            const deltaRadian = (card.angle * Math.PI) / 180
+            const radians = [
+              Math.atan2(this.cardHalfHeight, this.cardHalfWidth) + deltaRadian,
+              Math.atan2(this.cardHalfWidth, this.cardHalfHeight) + deltaRadian,
+            ]
+            const deltas = radians.map((radian) => ({
+              x: Math.cos(radian) * r,
+              y: Math.sin(radian) * r,
+            }))
+
+            const cardRect = [
+              { x: cardCenter.x + deltas[0].x, y: cardCenter.y + deltas[0].y },
+              { x: cardCenter.x - deltas[1].y, y: cardCenter.y + deltas[1].x },
+              { x: cardCenter.x - deltas[0].x, y: cardCenter.y - deltas[0].y },
+              { x: cardCenter.x + deltas[1].y, y: cardCenter.y - deltas[1].x },
+            ]
+            return isRectangleCollide(selectRect, cardRect)
           }),
           ...originalSelecteds,
         ]
@@ -192,8 +211,14 @@ export default {
         const r = Math.sqrt(x ** 2 + y ** 2)
         const theta = Math.atan2(y, x) + (angle * Math.PI) / 180
         return {
-          x: Math.round(Math.cos(theta) * r) + e.target.offsetLeft + this.cardHalfWidth,
-          y: Math.round(Math.sin(theta) * r) + e.target.offsetTop + this.cardHalfHeight,
+          x:
+            Math.round(Math.cos(theta) * r) +
+            e.target.offsetLeft +
+            this.cardHalfWidth,
+          y:
+            Math.round(Math.sin(theta) * r) +
+            e.target.offsetTop +
+            this.cardHalfHeight,
         }
       } else {
         return {
