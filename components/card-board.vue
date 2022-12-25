@@ -39,6 +39,7 @@
       :card-size="cardHeight"
       :mode="mode"
       :card="card"
+      :is-front="card.showers[id]"
       :class="{
         selected: card.selected,
       }"
@@ -427,6 +428,7 @@ export default {
       )
     },
     onMoveStart(e, card) {
+      const changeObj = {}
       if (!this.selecteds.includes(card)) {
         if (e.ctrlKey) {
           this.selecteds.push(card)
@@ -437,15 +439,16 @@ export default {
           this.selecteds = [card]
         }
         card.selected = true
-        const changeObj = {}
-        this.cards
-          .filter((someCard) => card.zIndex < someCard.zIndex)
-          .forEach((card) => {
-            changeObj[`cards-${card.index}-zIndex`] = card.zIndex - 1
-          })
-        changeObj[`cards-${card.index}-zIndex`] = this.cards.length
-        this.$emit('update', changeObj)
       }
+
+      this.cards
+        .filter((someCard) => card.zIndex < someCard.zIndex)
+        .forEach((card) => {
+          changeObj[`cards-${card.index}-zIndex`] = card.zIndex - 1
+        })
+      changeObj[`cards-${card.index}-zIndex`] = this.cards.length
+      this.$emit('update', changeObj)
+
       this.selecteds.forEach((selected) => {
         selected.originalCoord = { ...selected.coord }
       })

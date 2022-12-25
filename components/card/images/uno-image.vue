@@ -4,14 +4,16 @@
     :class="{
       'has-underline': ['6', '9'].includes(this.char),
       selected: card.selected,
+      front: isFront,
     }"
     :color="color"
     :style="{
       ...colors,
-      '--color': colors[`--${color}`],
+      '--color': colors[`--${isFront ? color : 'black'}`],
       '--height': cardSize + 'px',
     }"
   >
+    <div class="uno-logo">UNO</div>
     <div class="ellipse"></div>
     <label-component
       class="label mini left-top"
@@ -37,6 +39,10 @@ const LabelComponent = {
     position: {
       type: String,
       required: true,
+    },
+    isFront: {
+      type: Boolean,
+      default: true,
     },
   },
   render(h) {
@@ -139,8 +145,26 @@ export default {
   justify-content: center;
   box-sizing: content-box;
   align-items: center;
+  --ellipse-color: var(--red);
+  &.front {
+    --ellipse-color: white;
+  }
   &.selected {
     border: 4px solid gray;
+  }
+  &.front > .uno-logo {
+    display: none;
+  }
+  &:not(.front) > .label {
+    display: none;
+  }
+  > .uno-logo {
+    color: var(--yellow);
+    font-weight: 900;
+    font-size: calc(var(--height) * 0.25);
+    --text-shadow: 0.02;
+    text-shadow: calc(var(--height) * var(--text-shadow))
+      calc(var(--height) * var(--text-shadow)) 0px black;
   }
   > .ellipse {
     z-index: -1;
@@ -150,7 +174,7 @@ export default {
     clip-path: ellipse(
       calc(var(--height) * 0.3146) calc(var(--height) * 0.427) at center
     );
-    background-color: white;
+    background-color: var(--ellipse-color);
     transform: rotateZ(36deg);
   }
   .label {

@@ -5,6 +5,7 @@
       :card-size="cardSize"
       :mode="mode"
       :card="card"
+      :is-front="isFront"
     />
   </div>
 </template>
@@ -29,6 +30,10 @@ export default {
     card: {
       type: Object,
       required: true,
+    },
+    isFront: {
+      type: Boolean,
+      default: true,
     },
   },
 }
