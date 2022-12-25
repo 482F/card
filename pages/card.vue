@@ -15,6 +15,7 @@
           :mode="mode"
           :cards="cards"
           :angle="players[id]?.angle"
+          :players="players"
           @update="changePublic($event)"
         />
         <v-select
@@ -155,6 +156,7 @@ export default {
 
       if (!this.players[this.id]) {
         this.changePublic({
+          [`players-${this.id}-name`]: this.name,
           [`players-${this.id}-angle`]: 0,
           [`players-${this.id}-color`]: this.color,
         })

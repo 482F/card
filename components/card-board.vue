@@ -1,6 +1,9 @@
 <template>
   <div
     class="card-board"
+    :class="{
+      dragging,
+    }"
     :style="{ '--size': size + 'px', '--board-angle': angle + 'deg' }"
     ref="cardBoard"
     @mousemove="
@@ -37,17 +40,25 @@
       }"
       @mousedown="(e) => onMoveStart(e, card)"
     />
+    <player-positions
+      class="player-positions"
+      :board-size="size"
+      :current-angle="angle"
+      :players="players"
+    />
   </div>
 </template>
 
 <script>
 import SingleCard from '../components/card/single-card.vue'
+import PlayerPositions from '../components/player-positions.vue'
 const size = 800
 
 export default {
   name: 'CardBoard',
   components: {
     SingleCard,
+    PlayerPositions,
   },
   props: {
     mode: {
@@ -61,6 +72,10 @@ export default {
     angle: {
       type: Number,
       default: 0,
+    },
+    players: {
+      type: Object,
+      required: true,
     },
   },
   data() {
@@ -114,10 +129,11 @@ export default {
         selected.originalCoord = { ...selected.coord }
       })
       this.dragging = true
-      this.startCoord = this.getCoord(e)
+      this.startCoord = undefined
     },
     onMove(e) {
       const coord = this.getCoord(e)
+      this.startCoord ??= coord
       const coordDiff = {
         x: coord.x - this.startCoord.x,
         y: coord.y - this.startCoord.y,
@@ -152,17 +168,30 @@ export default {
 
 <style lang="scss" scoped>
 .card-board {
+  &.dragging {
+    ::v-deep(*:not(.single-card)) {
+      pointer-events: none !important;
+    }
+  }
   width: var(--size);
   height: var(--size);
   transform: rotate(var(--board-angle));
   background-color: lightgray;
   position: relative;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
   > .single-card {
     position: absolute;
     left: var(--x);
     top: var(--y);
     transform: rotate(var(--angle));
     z-index: var(--z-index);
+  }
+  > .player-positions {
+    height: 80%;
+    width: 80%;
   }
 }
 </style>
