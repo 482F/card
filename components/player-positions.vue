@@ -19,7 +19,7 @@
               halfSize + Math.sin(getRadian(player.angle)) * halfSize + 'px',
           }"
         >
-          <i class="fas fa-user" />
+          <i :class="`fas fa-${player.icon}`" />
         </div>
       </template>
       {{ player.name }}
@@ -63,9 +63,11 @@ export default {
 
 <style lang="scss" scoped>
 .player-positions {
+  pointer-events: none;
   position: relative;
   transform: rotate(calc(-1 * var(--current-angle)));
   .player {
+    pointer-events: auto;
     background-color: white;
     border-radius: 100%;
     border: 2px solid lightgray;

@@ -4,6 +4,7 @@
       v-if="!loggined"
       :password.sync="password"
       :name.sync="name"
+      :icon.sync="icon"
       :color.sync="color"
       @loggined="onLogin"
     />
@@ -66,6 +67,7 @@ export default {
         id: Math.random(),
         name: '',
         password: '',
+        icon: 'user',
         color: '#FF0000',
       }).map(([key, defaultValue]) => [
         key,
@@ -146,6 +148,7 @@ export default {
       this.loggined = true
       localStorage.setItem('card--name', this.name)
       localStorage.setItem('card--password', this.password)
+      localStorage.setItem('card--icon', this.icon)
       localStorage.setItem('card--color', this.color)
 
       this.socket = new WebSocket('ws://localhost:18245')
@@ -156,11 +159,14 @@ export default {
 
       if (!this.players[this.id]) {
         this.changePublic({
-          [`players-${this.id}-name`]: this.name,
           [`players-${this.id}-angle`]: 0,
-          [`players-${this.id}-color`]: this.color,
         })
       }
+      this.changePublic({
+        [`players-${this.id}-name`]: this.name,
+        [`players-${this.id}-icon`]: this.icon,
+        [`players-${this.id}-color`]: this.color,
+      })
       this.ready = true
     },
   },
