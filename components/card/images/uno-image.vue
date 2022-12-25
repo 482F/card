@@ -3,10 +3,14 @@
     class="uno"
     :class="{
       'has-underline': ['6', '9'].includes(this.char),
-      'selected': card.selected,
+      selected: card.selected,
     }"
     :color="color"
-    :style="{ ...colors, '--color': colors[`--${color}`] }"
+    :style="{
+      ...colors,
+      '--color': colors[`--${color}`],
+      '--height': cardSize + 'px',
+    }"
   >
     <div class="ellipse"></div>
     <label-component
@@ -84,6 +88,10 @@ export default {
     LabelComponent,
   },
   props: {
+    cardSize: {
+      type: Number,
+      required: true,
+    },
     card: {
       type: Object,
       required: true,
