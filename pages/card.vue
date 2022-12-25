@@ -17,6 +17,7 @@
           :cards="cards"
           :angle="players[id]?.angle"
           :players="players"
+          :id="id"
           @update="changePublic($event)"
         />
         <v-select
