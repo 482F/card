@@ -5,23 +5,25 @@
       '--current-angle': currentAngle + 'deg',
     }"
   >
-    <div
-      class="player"
-      v-for="[id, player] of Object.entries(players)"
-      :key="id"
-      :style="{
-        '--color': player.color,
-        '--x': halfSize + Math.cos(getRadian(player.angle)) * halfSize + 'px',
-        '--y': halfSize + Math.sin(getRadian(player.angle)) * halfSize + 'px',
-      }"
-    >
-      <v-tooltip bottom>
-        <template v-slot:activator="{ on, attrs }">
-          <i class="fas fa-user" v-bind="attrs" v-on="on" />
-        </template>
-        {{ player.name }}
-      </v-tooltip>
-    </div>
+    <v-tooltip bottom v-for="[id, player] of Object.entries(players)" :key="id">
+      <template v-slot:activator="{ on, attrs }">
+        <div
+          v-bind="attrs"
+          v-on="on"
+          class="player"
+          :style="{
+            '--color': player.color,
+            '--x':
+              halfSize + Math.cos(getRadian(player.angle)) * halfSize + 'px',
+            '--y':
+              halfSize + Math.sin(getRadian(player.angle)) * halfSize + 'px',
+          }"
+        >
+          <i class="fas fa-user" />
+        </div>
+      </template>
+      {{ player.name }}
+    </v-tooltip>
   </div>
 </template>
 
@@ -64,11 +66,21 @@ export default {
   position: relative;
   transform: rotate(calc(-1 * var(--current-angle)));
   .player {
+    background-color: white;
+    border-radius: 100%;
+    border: 2px solid lightgray;
+    width: 36px;
+    height: 36px;
+
     font-size: 24px;
     position: absolute;
     color: var(--color);
     left: var(--x);
     top: var(--y);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 }
 </style>

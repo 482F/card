@@ -42,6 +42,9 @@
     />
     <player-positions
       class="player-positions"
+      :style="{
+        '--z-index': cards.length + 1,
+      }"
       :board-size="size"
       :current-angle="angle"
       :players="players"
@@ -192,6 +195,7 @@ export default {
   > .player-positions {
     height: 80%;
     width: 80%;
+    z-index: var(--z-index);
   }
 }
 </style>
