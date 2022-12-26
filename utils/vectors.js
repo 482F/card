@@ -39,6 +39,67 @@ function isInRect(rect, point) {
   )
 }
 
+function isCross(line1, line2) {
+  const is1EndBetween2 = (() => {
+    const line1Vec = {
+      x: line1[1].x - line1[0].x,
+      y: line1[1].y - line1[0].y,
+    }
+    const to2Start = outerProduct(
+      {
+        x: line2[0].x - line1[0].x,
+        y: line2[0].y - line1[0].y,
+      },
+      line1Vec
+    )
+    const to2End = outerProduct(
+      {
+        x: line2[1].x - line1[0].x,
+        y: line2[1].y - line1[0].y,
+      },
+      line1Vec
+    )
+    return (to2Start < 0 && 0 < to2End) || (0 < to2Start && to2End < 0)
+  })()
+  const is2EndBetween1 = (() => {
+    const line2Vec = {
+      x: line2[1].x - line2[0].x,
+      y: line2[1].y - line2[0].y,
+    }
+    const to1Start = outerProduct(
+      {
+        x: line1[0].x - line2[0].x,
+        y: line1[0].y - line2[0].y,
+      },
+      line2Vec
+    )
+    const to1End = outerProduct(
+      {
+        x: line1[1].x - line2[0].x,
+        y: line1[1].y - line2[0].y,
+      },
+      line2Vec
+    )
+    return (to1Start < 0 && 0 < to1End) || (0 < to1Start && to1End < 0)
+  })()
+  return is1EndBetween2 && is2EndBetween1
+}
+
 export function isRectangleCollide(r1, r2) {
-  return r1.some((p1) => isInRect(r2, p1)) || r2.some((p2) => isInRect(r1, p2))
+  const isSomePointInRect =
+    r1.some((p1) => isInRect(r2, p1)) || r2.some((p2) => isInRect(r1, p2))
+  if (isSomePointInRect) {
+    return true
+  }
+  const lines = {
+    1: [],
+    2: [],
+  }
+  for (let i = 0; i < 4; i++) {
+    lines[1].push([r1[i], r1[(i + 1) % 4]])
+    lines[2].push([r2[i], r2[(i + 1) % 4]])
+  }
+  return lines[1].some((line1) =>
+    lines[2].some((line2) => isCross(line1, line2))
+  )
 }
