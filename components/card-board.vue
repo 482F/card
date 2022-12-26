@@ -458,21 +458,22 @@ export default {
         this.selectCoords.end.y
       )
     },
-    placeToTop(cards) {
+    placeToTop(cards, force) {
       const changeObj = {}
-      ;[...cards]
-        .sort((a, b) => a.zIndex - b.zIndex)
-        .forEach((card) => {
-          this.cards
-            .filter((someCard) => card.zIndex < someCard.zIndex)
-            .forEach((card) => {
-              changeObj[`cards-${card.index}-zIndex`] ??= card.zIndex
-              changeObj[`cards-${card.index}-zIndex`] -= 1
-              card.zIndex -= 1
-            })
-          changeObj[`cards-${card.index}-zIndex`] = this.cards.length
-          card.zIndex = this.cards.length
-        })
+      if (!force) {
+        cards = [...cards].sort((a, b) => a.zIndex - b.zIndex)
+      }
+      cards.forEach((card) => {
+        this.cards
+          .filter((someCard) => card.zIndex < someCard.zIndex)
+          .forEach((card) => {
+            changeObj[`cards-${card.index}-zIndex`] ??= card.zIndex
+            changeObj[`cards-${card.index}-zIndex`] -= 1
+            card.zIndex -= 1
+          })
+        changeObj[`cards-${card.index}-zIndex`] = this.cards.length
+        card.zIndex = this.cards.length
+      })
       this.$emit('update', changeObj)
     },
     onMoveStart(e, card) {
@@ -583,7 +584,7 @@ export default {
             (-this.angle + 360) % 360
         })
       }
-      this.placeToTop(cards)
+      this.placeToTop(cards, true)
       this.$emit('update', changeObj)
     },
     setCardSide(cards, isFront, players) {
