@@ -170,10 +170,10 @@ export default {
         {
           label: '並べる',
           items: [
-            {
-              label: '扇状に並べる',
-              handler: () => this.lineUp(this.selecteds, this.contextE, 'fan'),
-            },
+            // {
+            //   label: '扇状に並べる',
+            //   handler: () => this.lineUp(this.selecteds, this.contextE, 'fan'),
+            // },
             {
               label: '水平に並べる',
               handler: () =>
