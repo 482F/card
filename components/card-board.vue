@@ -614,7 +614,7 @@ export default {
 .card-board {
   &.dragging,
   &.selecting {
-    ::v-deep(*) {
+    ::v-deep(*:not(.single-card)) {
       pointer-events: none !important;
     }
   }
