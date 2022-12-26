@@ -120,30 +120,42 @@ export default {
       const value = rawValue === undefined ? undefined : JSON.parse(rawValue)
       this[key](value)
     },
-    changeValue(obj) {
-      Object.entries(obj).forEach(([keys, value]) => {
+    async changeValue(obj, waitWatch = true) {
+      const watchedKeys = [/^mode$/]
+      if (waitWatch) {
+        const waitObj = Object.fromEntries(
+          Object.entries(obj).filter(([key]) =>
+            watchedKeys.some((pattern) => key.match(pattern))
+          )
+        )
+        await this.changeValue(waitObj, false)
+        await new Promise((resolve) => setTimeout(resolve, 0))
+      }
+      for (const [keys, value] of Object.entries(obj)) {
         const splittedKeys = keys.split('-')
         let targetObj = this
-        splittedKeys.slice(0, -1).forEach((key) => {
-          let defaultValue = null
-          if (key.match(/^\d+$/)) {
-            key = Number(key)
-            defaultValue = []
-          } else {
-            defaultValue = {}
-          }
-
+        splittedKeys.slice(0, -1).forEach((key, i) => {
           if (!targetObj[key]) {
+            let defaultValue = null
+            if (splittedKeys[i + 1].match(/^\d+$/)) {
+              key = Number(key)
+              defaultValue = []
+            } else {
+              defaultValue = {}
+            }
             this.$set(targetObj, key, defaultValue)
           }
           targetObj = targetObj[key]
         })
         this.$set(targetObj, splittedKeys.at(-1), value)
-      })
+      }
     },
     changePublic(obj) {
       this.changeValue(obj)
       this.send('changePublic', obj)
+      if (obj.mode) {
+        this.send('deleteChangeds', ['^cards'])
+      }
     },
     async onLogin() {
       this.loggined = true

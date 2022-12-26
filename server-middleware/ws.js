@@ -51,6 +51,13 @@ wss.on('connection', (client) => {
       }
 
       broadcast(room)
+    } else if (key === 'deleteChangeds') {
+      const patterns = value.map((rawPattern) => new RegExp(rawPattern))
+      for (const key of Object.keys(room.changed)) {
+        if (patterns.some((pattern) => key.match(pattern))) {
+          delete room.changed[key]
+        }
+      }
     } else if (key === 'login') {
       const { password, id } = value
       client.password = password
