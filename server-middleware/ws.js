@@ -68,8 +68,7 @@ wss.on('connection', (client) => {
       }
       rooms[password].unBroadcasted[id] ??= {}
 
-      send(client, 'changeValue', rooms[password].changed)
-      send(client, 'initialized')
+      send(client, 'initialize', rooms[password].changed)
     }
   })
 })
