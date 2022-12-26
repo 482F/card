@@ -175,7 +175,7 @@ export default {
         ...Object.entries(this.players)
           .filter(([id]) => this.id !== id)
           .map(([, player]) => player),
-      ]
+      ].filter(Boolean)
     },
     menuItems() {
       return [
