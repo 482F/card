@@ -615,7 +615,7 @@ export default {
   height: var(--board-size);
   transform: rotate(var(--board-angle));
   background-color: lightgray;
-  // border-radius: 20%;
+  border-radius: 20%;
   position: relative;
 
   display: flex;
