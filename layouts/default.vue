@@ -13,6 +13,9 @@
 </template>
 
 <script>
+import Vue from 'vue'
+Vue.prototype.$$console = console
+
 export default {
   name: 'DefaultLayout',
   data() {
