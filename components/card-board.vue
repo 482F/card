@@ -553,17 +553,18 @@ export default {
             coord.y + col * deltas.x.y + row * deltas.y.y
           )
         })
-      } else if (mode === 'fan') {
-        console.log('fan')
+        cards.forEach((card) => {
+          card.angle = (-this.angle + 360) % 360
+        })
       } else if (mode === 'pile') {
         cards.forEach((card) => {
           card.coord.x = coord.x
           card.coord.y = coord.y
         })
+        cards.forEach((card) => {
+          card.angle = (-this.angle + 360) % 360
+        })
       }
-      cards.forEach((card) => {
-        card.angle = (-this.angle + 360) % 360
-      })
       this.placeToTop(cards)
     },
     setCardSide(cards, isFront, players) {
