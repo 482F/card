@@ -229,9 +229,6 @@ export default {
     // }
 
     .mode-select {
-      z-index: 1;
-      position: sticky;
-      top: 30px;
       background-color: white;
       grid-row: 1;
       grid-column: 1 / 3;
@@ -241,7 +238,7 @@ export default {
       grid-column: 1;
       .angle-slider {
         position: sticky;
-        top: 110px;
+        top: 30px;
 
         --height: 83vh;
         > ::v-deep(.v-input__control) {
