@@ -68,10 +68,16 @@ export const cards = {
   })(),
   trump: (() => {
     const suits = ['h', 'c', 'd', 's']
-    const nums = Array(13)
-      .fill(0)
-      .map((_, i) => (i + 1).toString())
-    return nums.flatMap((num) => suits.map((suit) => num + suit))
+    const nums = [
+      ...Array(9)
+        .fill(0)
+        .map((_, i) => (i + 1).toString()),
+      't',
+      'J',
+      'Q',
+      'K',
+    ]
+    return [...nums.flatMap((num) => suits.map((suit) => num + suit)), 'jj', 'jj']
   })(),
 }
 </script>
