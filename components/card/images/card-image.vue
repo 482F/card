@@ -5,6 +5,7 @@
       :card-size="cardSize"
       :card="card"
       :is-front="isFront"
+      :is-front-all="isFrontAll"
     />
   </div>
 </template>
@@ -36,6 +37,10 @@ export default {
       required: true,
     },
     isFront: {
+      type: Boolean,
+      default: true,
+    },
+    isFrontAll: {
       type: Boolean,
       default: true,
     },

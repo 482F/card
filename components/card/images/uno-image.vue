@@ -5,6 +5,7 @@
       'has-underline': ['6', '9'].includes(this.char),
       selected: card.selected,
       front: isFront,
+      'front-all': isFrontAll,
     }"
     :color="color"
     :style="{
@@ -102,6 +103,10 @@ export default {
       type: Boolean,
       default: true,
     },
+    isFrontAll: {
+      type: Boolean,
+      default: true,
+    },
   },
   computed: {
     char() {
@@ -148,6 +153,15 @@ export default {
   --ellipse-color: var(--red);
   border: 1px solid gray;
   &.front {
+    &:not(.front-all) {
+      &::after {
+        content: "";
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-color: #00000022;
+      }
+    }
     --ellipse-color: white;
   }
   &.selected {
