@@ -106,7 +106,6 @@ const cardSizes = {
   uno: 120,
   trump: 120,
 }
-const boardSize = 800
 
 export default {
   name: 'CardBoard',
@@ -116,6 +115,10 @@ export default {
     PlayerPositions,
   },
   props: {
+    boardSize: {
+      type: Number,
+      default: 800,
+    },
     mode: {
       type: String,
       required: true,
@@ -286,8 +289,9 @@ export default {
         },
       ]
     },
-    boardSize: () => boardSize,
-    boardHalfSize: () => boardSize / 2,
+    boardHalfSize() {
+      return this.boardSize / 2
+    },
     cardHeight() {
       return cardSizes[this.mode]
     },
@@ -374,9 +378,10 @@ export default {
   },
   methods: {
     getSelectCoord(e) {
+      console.log(e)
       return {
-        x: e.clientX - this.$refs.cardBoard.offsetLeft,
-        y: e.clientY - this.$refs.cardBoard.offsetTop,
+        x: e.pageX - this.$refs.cardBoard.offsetLeft,
+        y: e.pageY - this.$refs.cardBoard.offsetTop,
       }
     },
     getAngledCoord(e) {
@@ -531,6 +536,7 @@ export default {
     },
     onWheel(e) {
       if (this.dragging) {
+        e.preventDefault()
         this.rotateSelecteds(e.deltaY / 100)
       }
     },

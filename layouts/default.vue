@@ -32,7 +32,7 @@ body::-webkit-scrollbar {
 <style lang="scss" scoped>
 .app {
   ::v-deep(.container) {
-    height: 100vh;
+    // height: 100vh;
     width: 100vw;
     margin: auto;
     padding: 24px;
