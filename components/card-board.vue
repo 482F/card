@@ -610,10 +610,10 @@ export default {
         }))
       const changeObj = {}
       for (let i = 0; i < cards.length; i++) {
-        changeObj[`cards-${i}-coord-x`] = shuffled[i].x
-        changeObj[`cards-${i}-coord-y`] = shuffled[i].y
-        changeObj[`cards-${i}-zIndex`] = shuffled[i].zIndex
-        changeObj[`cards-${i}-angle`] = shuffled[i].angle
+        changeObj[`cards-${cards[i].index}-coord-x`] = shuffled[i].x
+        changeObj[`cards-${cards[i].index}-coord-y`] = shuffled[i].y
+        changeObj[`cards-${cards[i].index}-zIndex`] = shuffled[i].zIndex
+        changeObj[`cards-${cards[i].index}-angle`] = shuffled[i].angle
       }
       this.$emit('update', changeObj)
     },
