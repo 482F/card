@@ -119,7 +119,6 @@ export default {
 <style lang="scss" scoped>
 .uno {
   --height: 120px;
-  // --height: 520px;
   --width: calc(var(--height) * 0.714);
   z-index: 0;
   user-select: none;
@@ -131,7 +130,6 @@ export default {
   display: flex;
   justify-content: center;
   box-sizing: content-box;
-  // box-sizing: border-box;
   align-items: center;
   &.selected {
     border: 4px solid gray;
