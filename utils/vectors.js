@@ -86,11 +86,6 @@ function isCross(line1, line2) {
 }
 
 export function isRectangleCollide(r1, r2) {
-  const isSomePointInRect =
-    r1.some((p1) => isInRect(r2, p1)) || r2.some((p2) => isInRect(r1, p2))
-  if (isSomePointInRect) {
-    return true
-  }
   const lines = {
     1: [],
     2: [],
@@ -99,7 +94,14 @@ export function isRectangleCollide(r1, r2) {
     lines[1].push([r1[i], r1[(i + 1) % 4]])
     lines[2].push([r2[i], r2[(i + 1) % 4]])
   }
-  return lines[1].some((line1) =>
+  const isLineCrossed = lines[1].some((line1) =>
     lines[2].some((line2) => isCross(line1, line2))
   )
+  if (isLineCrossed) {
+    return true
+  }
+  const isSomePointInRect = isInRect(r2, r1[0]) || isInRect(r1, r2[0])
+  if (isSomePointInRect) {
+    return true
+  }
 }
