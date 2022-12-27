@@ -149,7 +149,7 @@ export default {
       this.socket = new WebSocket('ws://localhost:18245')
       this.socket.onmessage = (e) => this.onMessage(e)
       await new Promise((resolve) => (this.socket.onopen = resolve))
-      this.send('password', this.password)
+      this.send('login', { password: this.password, id: this.id })
       await new Promise((resolve) => (this.initialized = resolve))
 
       if (!this.players[this.id]) {
