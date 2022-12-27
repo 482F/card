@@ -102,7 +102,7 @@ import AContextMenu from '../components/atoms/a-context-menu.vue'
 import SingleCard from '../components/card/single-card.vue'
 import PlayerPositions from '../components/player-positions.vue'
 import { isRectangleCollide } from '../utils/vectors.js'
-import { angleToRadian } from '../utils/angles.js'
+import { angleToRadian, rotatePoint } from '../utils/angles.js'
 
 const cardSizes = {
   uno: 120,
@@ -317,31 +317,14 @@ export default {
 
         const originalSelecteds = this.additionalSelect ? this.selecteds : []
 
-        const selector = {}
-        selector.length = {
-          width: this.selectCoords.max.x - this.selectCoords.min.x,
-          height: this.selectCoords.max.y - this.selectCoords.min.y,
-        }
-        selector.center = {
-          x: selector.length.width / 2 + this.selectCoords.min.x,
-          y: selector.length.height / 2 + this.selectCoords.min.y,
-        }
-
         const selectRect = [
           { x: this.selectCoords.max.x, y: this.selectCoords.max.y },
           { x: this.selectCoords.min.x, y: this.selectCoords.max.y },
           { x: this.selectCoords.min.x, y: this.selectCoords.min.y },
           { x: this.selectCoords.max.x, y: this.selectCoords.min.y },
-        ].map((p) => {
-          const x = p.x - this.boardHalfSize
-          const y = p.y - this.boardHalfSize
-          const r = Math.sqrt(x ** 2 + y ** 2)
-          const theta = Math.atan2(y, x) - angleToRadian(this.angle)
-          return {
-            x: Math.cos(theta) * r + this.boardHalfSize,
-            y: Math.sin(theta) * r + this.boardHalfSize,
-          }
-        })
+        ].map((p) =>
+          rotatePoint(p, angleToRadian(this.angle), this.boardHalfSize)
+        )
         const r = Math.sqrt(this.cardHalfWidth ** 2 + this.cardHalfHeight ** 2)
 
         this.tempSelecteds = [
@@ -387,36 +370,25 @@ export default {
     },
     getAngledCoord(e) {
       const rawCoord = this.getSelectCoord(e)
-      const coord = (() => {
-        const x = rawCoord.x - this.boardHalfSize
-        const y = rawCoord.y - this.boardHalfSize
-        const r = Math.sqrt(x ** 2 + y ** 2)
-        const theta = Math.atan2(y, x) - angleToRadian(this.angle)
-        return {
-          x: Math.cos(theta) * r + this.boardHalfSize,
-          y: Math.sin(theta) * r + this.boardHalfSize,
-        }
-      })()
-      return coord
+      return rotatePoint(
+        rawCoord,
+        angleToRadian(this.angle),
+        this.boardHalfSize
+      )
     },
     getCoord(e) {
       if (e.target.matches('.single-card')) {
         const angle = Number(
           e.target.style.getPropertyValue('--angle').match(/-?\d+/)[0]
         )
-        const x = e.offsetX - this.cardHalfWidth
-        const y = e.offsetY - this.cardHalfHeight
-        const r = Math.sqrt(x ** 2 + y ** 2)
-        const theta = Math.atan2(y, x) + angleToRadian(angle)
+        const offsetCoord = rotatePoint(
+          { x: e.offsetX, y: offsetY },
+          angleToRadian(angle),
+          { x: this.cardHalfWidth, y: this.cardHalfHeight }
+        )
         return {
-          x:
-            Math.round(Math.cos(theta) * r) +
-            e.target.offsetLeft +
-            this.cardHalfWidth,
-          y:
-            Math.round(Math.sin(theta) * r) +
-            e.target.offsetTop +
-            this.cardHalfHeight,
+          x: offsetCoord.x + e.target.offsetLeft,
+          y: offsetCoord.y + e.target.offsetTop,
         }
       } else {
         return {
