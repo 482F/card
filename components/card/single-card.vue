@@ -1,6 +1,6 @@
 <template>
   <div v-on="$listeners">
-    <card-image :mode="mode" :card="card" />
+    <card-image class="card-image" :mode="mode" :card="card" />
   </div>
 </template>
 
@@ -56,3 +56,12 @@ export const cards = {
   })(),
 }
 </script>
+
+<style lang="scss" scoped>
+.card-image {
+  pointer-events: none !important;
+  ::v-deep(*) {
+    pointer-events: none !important;
+  }
+}
+</style>
