@@ -59,9 +59,5 @@ export const cards = {
 
 <style lang="scss" scoped>
 .card-image {
-  pointer-events: none !important;
-  ::v-deep(*) {
-    pointer-events: none !important;
-  }
 }
 </style>
