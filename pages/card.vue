@@ -30,6 +30,7 @@
           class="card-board"
           :mode="mode"
           :cards="cards"
+          :angle="players[id]?.angle"
           @update="changePublic($event)"
         />
       </template>
@@ -128,11 +129,11 @@ export default {
           }
 
           if (!targetObj[key]) {
-            targetObj[key] = defaultValue
+            this.$set(targetObj, key, defaultValue)
           }
           targetObj = targetObj[key]
         })
-        targetObj[splittedKeys.at(-1)] = value
+        this.$set(targetObj, splittedKeys.at(-1), value)
       })
     },
     changePublic(obj) {
@@ -199,6 +200,7 @@ export default {
     }
     .card-board {
       justify-self: center;
+      align-self: center;
       grid-row: 2;
       grid-column: 2;
     }
