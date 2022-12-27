@@ -186,7 +186,8 @@ export default {
       localStorage.setItem('card--icon', this.icon)
       localStorage.setItem('card--color', this.color)
 
-      this.socket = new WebSocket('ws://localhost:18245')
+      const host = window.$nuxt.$config.HOST
+      this.socket = new WebSocket(`ws://${host}:18245`)
       this.socket.onmessage = (e) => this.onMessage(e)
       await new Promise((resolve) => (this.socket.onopen = resolve))
       this.send('login', { password: this.password, id: this.id })

@@ -3,7 +3,7 @@ import throttle from 'lodash/throttle'
 
 const wss = new WebSocket.Server({
   port: 18245,
-  host: 'localhost',
+  host: process.env.HOST,
 })
 
 const rooms = {}
