@@ -1,24 +1,33 @@
 <template>
-  <div>
+  <div class="outer">
     <entrance-form
       v-if="!loggined"
       :password="password"
       @update:password="onLogin"
       :name.sync="name"
     />
-    <template v-else>
-      <v-progress-circular v-if="!ready" interminate />
+    <div v-else class="main">
+      <v-progress-circular v-if="!ready" indeterminate />
       <template v-else>
         <v-select
+          class="mode-select"
           :items="modes"
           :value="mode"
           @change="changePublic({ mode: $event })"
           outlined
           dense
         />
-        <card-board :cards="cards" />
+        <v-slider
+          class="angle-slider"
+          max="360"
+          min="0"
+          vertical
+          :value="players[id]?.angle"
+          @input="changePublic({ [`players-${id}-angle`]: $event })"
+        />
+        <card-board class="card-board" :cards="cards" />
       </template>
-    </template>
+    </div>
   </div>
 </template>
 
@@ -44,16 +53,27 @@ export default {
   data() {
     const mode = modes[0].value
 
-    const name = localStorage.getItem('card--name') ?? ''
-    const password = localStorage.getItem('card--password') ?? ''
+    const storedValues = Object.fromEntries(
+      Object.entries({
+        id: Math.random(),
+        name: '',
+        password: '',
+      }).map(([key, defaultValue]) => [
+        key,
+        localStorage.getItem(`card--${key}`) ?? defaultValue,
+      ])
+    )
+
+    localStorage.setItem('card--id', storedValues.id)
+
     return {
+      ...storedValues,
       loggined: false,
       ready: false,
-      name,
-      password,
       socket: null,
       mode,
       cards: [],
+      players: {},
     }
   },
   watch: {
@@ -88,16 +108,25 @@ export default {
         const splittedKeys = keys.split('-')
         let targetObj = this
         splittedKeys.slice(0, -1).forEach((key) => {
+          let defaultValue = null
+          if (key.match(/^\d+$/)) {
+            key = Number(key)
+            defaultValue = []
+          } else {
+            defaultValue = {}
+          }
+
+          if (!targetObj[key]) {
+            targetObj[key] = defaultValue
+          }
           targetObj = targetObj[key]
         })
         targetObj[splittedKeys.at(-1)] = value
       })
     },
-    changePublic(obj, broadcast = true) {
+    changePublic(obj) {
       this.changeValue(obj)
-      if (broadcast) {
-        this.send('changePublic', obj)
-      }
+      this.send('changePublic', obj)
     },
     async onLogin(password) {
       this.loggined = true
@@ -110,8 +139,56 @@ export default {
       await new Promise((resolve) => (this.socket.onopen = resolve))
       this.send('password', this.password)
       await new Promise((resolve) => (this.initialized = resolve))
+
+      if (!this.players[this.id]) {
+        this.changePublic({
+          [`players-${this.id}-angle`]: 0,
+        })
+      }
       this.ready = true
     },
   },
 }
 </script>
+
+<style lang="scss" scoped>
+.outer {
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+  .main {
+    height: 100%;
+    width: 100%;
+
+    display: grid;
+    grid-template-rows: 50px 1fr;
+    grid-template-columns: 40px 1fr;
+    > * {
+      overflow: hidden;
+    }
+
+    .mode-select {
+      grid-row: 1;
+      grid-column: 1 / 3;
+    }
+    .angle-slider {
+      grid-row: 2;
+      grid-column: 1;
+
+      > ::v-deep(.v-input__control) {
+        height: 99%;
+        > .v-input__slot {
+          height: 99%;
+          .v-slider {
+            height: 99%;
+          }
+        }
+      }
+    }
+    .card-board {
+      grid-row: 2;
+      grid-column: 2;
+    }
+  }
+}
+</style>

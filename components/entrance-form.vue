@@ -37,8 +37,8 @@ export default {
   },
   data() {
     return {
-      tempName: this.name ?? '',
-      tempPassword: this.password ?? '',
+      tempName: this.name,
+      tempPassword: this.password,
     }
   },
 }

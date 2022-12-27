@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app class="app">
     <v-main>
       <v-container>
         <Nuxt />
@@ -16,3 +16,19 @@ export default {
   },
 }
 </script>
+
+<style lang="scss">
+body::-webkit-scrollbar {
+  display: none;
+}
+</style>
+<style lang="scss" scoped>
+.app {
+  ::v-deep(.container) {
+    height: 100vh;
+    width: 100vw;
+    margin: auto;
+    padding: 24px;
+  }
+}
+</style>
