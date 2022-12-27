@@ -381,7 +381,7 @@ export default {
         )
         const offsetCoord = rotatePoint(
           { x: e.offsetX, y: e.offsetY },
-          angleToRadian(angle),
+          angleToRadian(-angle),
           { x: this.cardHalfWidth, y: this.cardHalfHeight }
         )
         return {
