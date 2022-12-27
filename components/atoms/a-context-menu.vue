@@ -99,7 +99,6 @@ export default {
           item.showChildren = false
         })
       }
-      console.log({ newValue })
       this._value = newValue
     },
     openChildMenu(item, i) {
