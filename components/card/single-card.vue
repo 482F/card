@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-on="$listeners">
     <card-image :mode="mode" :card="card" />
   </div>
 </template>
@@ -33,9 +33,7 @@ export const cards = {
       's', // スキップ
       'r', // リバース
     ]
-    const colors = ['y', 'b',
-    //  'r', 'g'
-    ]
+    const colors = ['y', 'b', 'r', 'g']
 
     return [
       ...[...nums, ...coloredSpecials].flatMap((char) =>

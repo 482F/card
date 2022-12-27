@@ -26,7 +26,12 @@
           :value="players[id]?.angle"
           @input="changePublic({ [`players-${id}-angle`]: $event })"
         />
-        <card-board class="card-board" :mode="mode" :cards="cards" />
+        <card-board
+          class="card-board"
+          :mode="mode"
+          :cards="cards"
+          @update="changePublic($event)"
+        />
       </template>
     </div>
   </div>
@@ -82,10 +87,13 @@ export default {
     mode: {
       immediate: true,
       handler() {
-        this.cards = cards[this.mode].map((card) => ({
+        this.cards = cards[this.mode].map((card, i) => ({
+          index: i,
           text: card,
-          r: 0,
-          theta: 0,
+          coord: {
+            x: 0,
+            y: 0,
+          },
           angle: 0,
           showers: [],
         }))
@@ -189,6 +197,7 @@ export default {
       }
     }
     .card-board {
+      justify-self: center;
       grid-row: 2;
       grid-column: 2;
     }
