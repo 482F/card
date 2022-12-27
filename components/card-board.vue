@@ -465,7 +465,9 @@ export default {
         }
         card.selected = true
       }
-      this.placeToTop(this.selecteds)
+      if (!e.shiftKey) {
+        this.placeToTop(this.selecteds)
+      }
 
       this.selecteds.forEach((selected) => {
         selected.originalCoord = { ...selected.coord }
