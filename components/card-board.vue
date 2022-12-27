@@ -193,12 +193,11 @@ export default {
             // },
             {
               label: '水平に並べる',
-              handler: () =>
-                this.lineUp(this.selecteds, this.contextE, 'horizon'),
+              handler: () => this.lineUp(this.selecteds, 'horizon'),
             },
             {
               label: '重ねる',
-              handler: () => this.lineUp(this.selecteds, this.contextE, 'pile'),
+              handler: () => this.lineUp(this.selecteds, 'pile'),
             },
           ],
         },
@@ -522,10 +521,24 @@ export default {
       })
       this.$emit('update', changeObj)
     },
-    lineUp(cards, e, mode) {
+    lineUp(cards, mode, offset = { x: 0, y: 0 }) {
+      if (cards.length <= 0) {
+        return
+      }
       const changeObj = {}
 
-      const coord = this.getAngledCoord(e)
+      const adjustedOffset = rotatePoint(
+        {
+          x: offset.x,
+          y: offset.y,
+        },
+        this.angle,
+        0
+      )
+      const coord = {
+        x: cards[0].coord.x + adjustedOffset.x,
+        y: cards[0].coord.y + adjustedOffset.y,
+      }
       if (mode === 'horizon') {
         const delta = 24
         const lineNum = 24
@@ -603,15 +616,14 @@ export default {
     separateCards(cards, leftNum, e) {
       const left = cards.slice(0, leftNum)
       const right = cards.slice(leftNum)
-      this.lineUp(left, { pageX: e.pageX, pageY: e.pageY }, 'horizon')
-      this.lineUp(
-        right,
-        {
-          pageX: e.pageX,
-          pageY: e.pageY + this.cardHalfHeight,
-        },
-        'horizon'
-      )
+      this.lineUp(left, 'horizon')
+      if (right[0]) {
+        right[0].coord = { ...(left[0].coord ?? right[0].coord) }
+      }
+      this.lineUp(right, 'horizon', {
+        x: 0,
+        y: this.cardHalfHeight,
+      })
     },
   },
 }
