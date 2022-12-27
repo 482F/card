@@ -239,7 +239,7 @@ export default {
       grid-column: 1;
       .angle-slider {
         position: sticky;
-        top: 30px;
+        top: 110px;
 
         --height: 83vh;
         > ::v-deep(.v-input__control) {
