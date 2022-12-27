@@ -1,11 +1,22 @@
 <template>
-  <div>{{ card }}</div>
+  <div>
+    <card-image :mode="mode" :card="card" />
+  </div>
 </template>
 
 <script>
+import CardImage from './images/card-image.vue'
+
 export default {
   name: 'SingleCard',
+  components: {
+    CardImage,
+  },
   props: {
+    mode: {
+      type: String,
+      required: true,
+    },
     card: {
       type: Object,
       required: true,
@@ -22,7 +33,9 @@ export const cards = {
       's', // スキップ
       'r', // リバース
     ]
-    const colors = ['y', 'b', 'r', 'g']
+    const colors = ['y', 'b',
+    //  'r', 'g'
+    ]
 
     return [
       ...[...nums, ...coloredSpecials].flatMap((char) =>
@@ -32,8 +45,8 @@ export const cards = {
           return Array(repeatNum).fill(card)
         })
       ),
-      ...['w', 'w', 'w', 'w'], // ワイルド
-      ...['wd', 'wd', 'wd', 'wd'], // ワイルドドロー4
+      ...['ww', 'ww', 'ww', 'ww'], // ワイルド
+      ...['fw', 'fw', 'fw', 'fw'], // ワイルドドロー4
     ]
   })(),
   trump: (() => {
