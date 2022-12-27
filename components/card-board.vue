@@ -362,7 +362,6 @@ export default {
   },
   methods: {
     getSelectCoord(e) {
-      console.log(e)
       return {
         x: e.pageX - this.$refs.cardBoard.offsetLeft,
         y: e.pageY - this.$refs.cardBoard.offsetTop,
