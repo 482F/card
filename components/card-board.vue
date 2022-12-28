@@ -3,30 +3,31 @@
     class="card-board"
     :class="{
       dragging,
+      selecting,
     }"
-    :style="{ '--size': size + 'px', '--board-angle': angle + 'deg' }"
+    :style="{
+      '--board-size': boardSize + 'px',
+      '--board-angle': angle + 'deg',
+    }"
     ref="cardBoard"
+    @mousedown="(e) => onSelectStart(e)"
     @mousemove="
       (e) => {
-        if (!dragging) return
-        onMove(e)
+        if (dragging) {
+          onMove(e)
+        } else if (selecting) {
+          onSelect(e)
+        }
       }
     "
-    @mouseup="
-      (e) => {
-        onMoveEnd(e)
-      }
-    "
-    @wheel="
-      (e) => {
-        onWheel(e)
-      }
-    "
+    @mouseup="(e) => onMoveEnd(e)"
+    @wheel="(e) => onWheel(e)"
   >
     <single-card
       class="single-card"
       v-for="(card, i) of cards"
       :key="i"
+      :card-size="cardSize"
       :mode="mode"
       :card="card"
       :class="{
@@ -45,9 +46,20 @@
       :style="{
         '--z-index': cards.length + 1,
       }"
-      :board-size="size"
+      :board-size="boardSize"
       :current-angle="angle"
       :players="players"
+    />
+    <div
+      class="selector"
+      v-if="selecting"
+      :style="{
+        '--start-x': selectCoords.min.x + 'px',
+        '--start-y': selectCoords.min.y + 'px',
+        '--end-x': selectCoords.max.x + 'px',
+        '--end-y': selectCoords.max.y + 'px',
+        '--z-index': cards.length + 1,
+      }"
     />
   </div>
 </template>
@@ -55,7 +67,11 @@
 <script>
 import SingleCard from '../components/card/single-card.vue'
 import PlayerPositions from '../components/player-positions.vue'
-const size = 800
+const cardSizes = {
+  uno: 120,
+  trump: 120,
+}
+const boardSize = 800
 
 export default {
   name: 'CardBoard',
@@ -84,15 +100,81 @@ export default {
   data() {
     return {
       dragging: false,
+      selecting: false,
       startCoord: {
         x: 0,
         y: 0,
       },
+      selectCoords: {
+        start: {},
+        end: {},
+        min: {
+          x: 0,
+          y: 0,
+        },
+        max: {
+          x: 0,
+          y: 0,
+        },
+      },
+      additionalSelect: false,
+      tempSelecteds: [],
       selecteds: [],
     }
   },
   computed: {
-    size: () => size,
+    boardSize: () => boardSize,
+    cardSize() {
+      return cardSizes[this.mode]
+    },
+  },
+  watch: {
+    selectCoords: {
+      deep: true,
+      handler() {
+        this.tempSelecteds.forEach((card) => {
+          card.selected = false
+        })
+        const originalSelecteds = this.additionalSelect ? this.selecteds : []
+
+        const cardHeight = this.cardSize
+        const cardWidth = Math.round(cardHeight * 0.714)
+        const cardHalfHeight = Math.round(cardHeight / 2)
+        const cardHalfWidth = Math.round(cardWidth / 2)
+
+        const selector = {}
+        selector.length = {
+          width: this.selectCoords.max.x - this.selectCoords.min.x,
+          height: this.selectCoords.max.y - this.selectCoords.min.y,
+        }
+        selector.center = {
+          x: selector.length.width / 2 + this.selectCoords.min.x,
+          y: selector.length.height / 2 + this.selectCoords.min.y,
+        }
+
+        this.tempSelecteds = [
+          ...this.cards.filter((card, i) => {
+            const cardCenter = {
+              x: card.coord.x + cardHalfWidth,
+              y: card.coord.y + cardHalfHeight,
+            }
+            const distance = {
+              x: Math.abs(selector.center.x - cardCenter.x),
+              y: Math.abs(selector.center.y - cardCenter.y),
+            }
+            const lengthSum = {
+              x: cardWidth + selector.length.width,
+              y: cardHeight + selector.length.height,
+            }
+            return distance.x < lengthSum.x / 2 && distance.y < lengthSum.y / 2
+          }),
+          ...originalSelecteds,
+        ]
+        this.tempSelecteds.forEach((card) => {
+          card.selected = true
+        })
+      },
+    },
   },
   methods: {
     getCoord(e) {
@@ -107,6 +189,45 @@ export default {
           y: e.offsetY,
         }
       }
+    },
+    onSelectStart(e) {
+      if (e.target !== this.$refs.cardBoard) {
+        return
+      }
+      this.selecting = true
+      const coord = this.getCoord(e)
+
+      this.selectCoords.start = { ...coord }
+      this.selectCoords.end = { ...coord }
+      this.selectCoords.min = { ...coord }
+      this.selectCoords.max = { ...coord }
+      this.additionalSelect = e.ctrlKey
+      if (!this.additionalSelect) {
+        this.selecteds.forEach((card) => {
+          card.selected = false
+        })
+        this.selecteds = []
+      }
+    },
+    onSelect(e) {
+      const coord = this.getCoord(e)
+      this.selectCoords.end = { ...coord }
+      this.selectCoords.min.x = Math.min(
+        this.selectCoords.start.x,
+        this.selectCoords.end.x
+      )
+      this.selectCoords.min.y = Math.min(
+        this.selectCoords.start.y,
+        this.selectCoords.end.y
+      )
+      this.selectCoords.max.x = Math.max(
+        this.selectCoords.start.x,
+        this.selectCoords.end.x
+      )
+      this.selectCoords.max.y = Math.max(
+        this.selectCoords.start.y,
+        this.selectCoords.end.y
+      )
     },
     onMoveStart(e, card) {
       if (!this.selecteds.includes(card)) {
@@ -152,6 +273,17 @@ export default {
     },
     onMoveEnd() {
       this.dragging = false
+      if (this.selecting) {
+        this.selecteds.forEach((card) => {
+          card.selected = false
+        })
+        this.selecteds = this.tempSelecteds
+        this.selecteds.forEach((card) => {
+          card.selected = true
+        })
+        this.tempSelecteds = []
+      }
+      this.selecting = false
     },
     onWheel(e) {
       if (this.dragging) {
@@ -171,15 +303,17 @@ export default {
 
 <style lang="scss" scoped>
 .card-board {
-  &.dragging {
+  &.dragging,
+  &.selecting {
     ::v-deep(*:not(.single-card)) {
       pointer-events: none !important;
     }
   }
-  width: var(--size);
-  height: var(--size);
+  width: var(--board-size);
+  height: var(--board-size);
   transform: rotate(var(--board-angle));
   background-color: lightgray;
+  // border-radius: 20%;
   position: relative;
 
   display: flex;
@@ -196,6 +330,15 @@ export default {
     height: 80%;
     width: 80%;
     z-index: var(--z-index);
+  }
+  > .selector {
+    position: absolute;
+    left: var(--start-x);
+    top: var(--start-y);
+    width: calc(var(--end-x) - var(--start-x));
+    height: calc(var(--end-y) - var(--start-y));
+    z-index: var(--z-index);
+    border: 1px solid gray;
   }
 }
 </style>

@@ -1,6 +1,11 @@
 <template>
   <div v-on="$listeners">
-    <card-image class="card-image" :mode="mode" :card="card" />
+    <card-image
+      class="card-image"
+      :card-size="cardSize"
+      :mode="mode"
+      :card="card"
+    />
   </div>
 </template>
 
@@ -13,6 +18,10 @@ export default {
     CardImage,
   },
   props: {
+    cardSize: {
+      type: Number,
+      required: true,
+    },
     mode: {
       type: String,
       required: true,

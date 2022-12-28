@@ -97,8 +97,8 @@ export default {
           selected: false,
           text: card,
           coord: {
-            x: 0,
-            y: 0,
+            x: 50,
+            y: 50,
           },
           angle: 0,
           showers: [],

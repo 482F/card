@@ -1,6 +1,6 @@
 <template>
   <div>
-    <component :is="component" :card="card" />
+    <component :is="component" :card-size="cardSize" :card="card" />
   </div>
 </template>
 
@@ -18,6 +18,10 @@ export default {
     },
   },
   props: {
+    cardSize: {
+      type: Number,
+      required: true,
+    },
     mode: {
       type: String,
       required: true,
