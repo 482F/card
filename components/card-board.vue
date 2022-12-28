@@ -460,17 +460,19 @@ export default {
     },
     placeToTop(cards) {
       const changeObj = {}
-      cards.forEach((card) => {
-        this.cards
-          .filter((someCard) => card.zIndex < someCard.zIndex)
-          .forEach((card) => {
-            changeObj[`cards-${card.index}-zIndex`] ??= card.zIndex
-            changeObj[`cards-${card.index}-zIndex`] -= 1
-            card.zIndex -= 1
-          })
-        changeObj[`cards-${card.index}-zIndex`] = this.cards.length
-        card.zIndex = this.cards.length
-      })
+      ;[...cards]
+        .sort((a, b) => a.zIndex - b.zIndex)
+        .forEach((card) => {
+          this.cards
+            .filter((someCard) => card.zIndex < someCard.zIndex)
+            .forEach((card) => {
+              changeObj[`cards-${card.index}-zIndex`] ??= card.zIndex
+              changeObj[`cards-${card.index}-zIndex`] -= 1
+              card.zIndex -= 1
+            })
+          changeObj[`cards-${card.index}-zIndex`] = this.cards.length
+          card.zIndex = this.cards.length
+        })
       this.$emit('update', changeObj)
     },
     onMoveStart(e, card) {
