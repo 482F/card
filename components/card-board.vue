@@ -473,7 +473,7 @@ export default {
         }
         card.selected = true
       }
-      this.placeToTop([card])
+      this.placeToTop(this.selecteds)
 
       this.selecteds.forEach((selected) => {
         selected.originalCoord = { ...selected.coord }
