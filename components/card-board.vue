@@ -524,6 +524,8 @@ export default {
       this.$emit('update', changeObj)
     },
     lineUp(cards, e, mode) {
+      const changeObj = {}
+
       const coord = this.getAngledCoord(e)
       if (mode === 'horizon') {
         const delta = 24
@@ -546,26 +548,29 @@ export default {
         cards.forEach((card, i) => {
           const col = (i % lineNum) + Math.floor(i / lineNum) / 2
           const row = Math.floor(i / lineNum)
-          card.coord.x = Math.round(
+          changeObj[`cards-${card.index}-coord-x`] = Math.round(
             coord.x + col * deltas.x.x + row * deltas.y.x
           )
-          card.coord.y = Math.round(
+          changeObj[`cards-${card.index}-coord-y`] = Math.round(
             coord.y + col * deltas.x.y + row * deltas.y.y
           )
         })
         cards.forEach((card) => {
-          card.angle = (-this.angle + 360) % 360
+          changeObj[`cards-${card.index}-angle`] = card.angle =
+            (-this.angle + 360) % 360
         })
       } else if (mode === 'pile') {
         cards.forEach((card) => {
-          card.coord.x = coord.x
-          card.coord.y = coord.y
+          changeObj[`cards-${card.index}-coord-x`] = coord.x
+          changeObj[`cards-${card.index}-coord-y`] = coord.y
         })
         cards.forEach((card) => {
-          card.angle = (-this.angle + 360) % 360
+          changeObj[`cards-${card.index}-angle`] = card.angle =
+            (-this.angle + 360) % 360
         })
       }
       this.placeToTop(cards)
+      this.$emit('update', changeObj)
     },
     setCardSide(cards, isFront, players) {
       players ??= this.sortedPlayers
@@ -583,11 +588,13 @@ export default {
       const shuffled = [...cards]
         .sort((a, b) => Math.random() - 0.5)
         .map((card) => ({ ...card.coord, zIndex: card.zIndex }))
+      const changeObj = {}
       for (let i = 0; i < cards.length; i++) {
-        cards[i].coord.x = shuffled[i].x
-        cards[i].coord.y = shuffled[i].y
-        cards[i].zIndex = shuffled[i].zIndex
+        changeObj[`cards-${i}-coord-x`] = shuffled[i].x
+        changeObj[`cards-${i}-coord-y`] = shuffled[i].y
+        changeObj[`cards-${i}-zIndex`] = shuffled[i].zIndex
       }
+      this.$emit('update', changeObj)
     },
     separateCards(cards, leftNum, e) {
       const left = cards.slice(0, leftNum)
