@@ -1,6 +1,11 @@
 <template>
   <div>
-    <component :is="component" :card-size="cardSize" :card="card" :is-front="isFront"/>
+    <component
+      :is="component"
+      :card-size="cardSize"
+      :card="card"
+      :is-front="isFront"
+    />
   </div>
 </template>
 
@@ -33,7 +38,7 @@ export default {
     isFront: {
       type: Boolean,
       default: true,
-    }
+    },
   },
 }
 </script>

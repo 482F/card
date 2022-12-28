@@ -40,10 +40,6 @@ const LabelComponent = {
       type: String,
       required: true,
     },
-    isFront: {
-      type: Boolean,
-      default: true,
-    },
   },
   render(h) {
     return (
@@ -101,6 +97,10 @@ export default {
     card: {
       type: Object,
       required: true,
+    },
+    isFront: {
+      type: Boolean,
+      default: true,
     },
   },
   computed: {

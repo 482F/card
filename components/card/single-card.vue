@@ -33,7 +33,7 @@ export default {
     },
     isFront: {
       type: Boolean,
-      default: true,
+      default: false,
     },
   },
 }

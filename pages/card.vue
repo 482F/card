@@ -102,7 +102,7 @@ export default {
             y: 50,
           },
           angle: 0,
-          showers: [],
+          showers: {},
         }))
       },
     },
@@ -164,6 +164,7 @@ export default {
         })
       }
       this.changePublic({
+        [`players-${this.id}-id`]: this.id,
         [`players-${this.id}-name`]: this.name,
         [`players-${this.id}-icon`]: this.icon,
         [`players-${this.id}-color`]: this.color,

@@ -50,6 +50,7 @@
         '--z-index': card.zIndex,
       }"
       @mousedown="(e) => onMoveStart(e, card)"
+      @dblclick="() => setCardSide(selecteds, true, [players[id]])"
     />
     <player-positions
       class="player-positions"
@@ -500,8 +501,17 @@ export default {
     lineUp(cards, x, y, mode) {
       console.log(cards)
     },
-    setCardSide(cards, front, players) {
-      players ??= this.players
+    setCardSide(cards, isFront, players) {
+      players ??= this.sortedPlayers
+      const changeObj = {}
+      cards.forEach((card) => {
+        players.forEach((player) => {
+          if (card.showers[player.id] !== isFront) {
+            changeObj[`cards-${card.index}-showers-${player.id}`] = isFront
+          }
+        })
+      })
+      this.$emit('update', changeObj)
     },
     separateCards(cards, leftNum, x, y) {
       console.log({ cards, leftNum, x, y })
