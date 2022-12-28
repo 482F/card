@@ -601,12 +601,17 @@ export default {
     shuffleCards(cards) {
       const shuffled = [...cards]
         .sort((a, b) => Math.random() - 0.5)
-        .map((card) => ({ ...card.coord, zIndex: card.zIndex }))
+        .map((card) => ({
+          ...card.coord,
+          zIndex: card.zIndex,
+          angle: card.angle,
+        }))
       const changeObj = {}
       for (let i = 0; i < cards.length; i++) {
         changeObj[`cards-${i}-coord-x`] = shuffled[i].x
         changeObj[`cards-${i}-coord-y`] = shuffled[i].y
         changeObj[`cards-${i}-zIndex`] = shuffled[i].zIndex
+        changeObj[`cards-${i}-angle`] = shuffled[i].angle
       }
       this.$emit('update', changeObj)
     },
