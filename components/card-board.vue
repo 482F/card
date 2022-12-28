@@ -181,8 +181,7 @@ export default {
             },
             {
               label: '重ねる',
-              handler: () =>
-                this.lineUp(this.selecteds, this.contextE, 'pile'),
+              handler: () => this.lineUp(this.selecteds, this.contextE, 'pile'),
             },
           ],
         },
@@ -550,13 +549,18 @@ export default {
           card.coord.y = Math.round(
             coord.y + col * deltas.x.y + row * deltas.y.y
           )
-          card.angle = (-this.angle + 360) % 360
         })
       } else if (mode === 'fan') {
         console.log('fan')
       } else if (mode === 'pile') {
-        console.log('pile')
+        cards.forEach((card) => {
+          card.coord.x = coord.x
+          card.coord.y = coord.y
+        })
       }
+      cards.forEach((card) => {
+        card.angle = (-this.angle + 360) % 360
+      })
       this.placeToTop(cards)
     },
     setCardSide(cards, isFront, players) {
