@@ -6,6 +6,7 @@
       :mode="mode"
       :card="card"
       :is-front="isFront"
+      :is-front-all="isFrontAll"
     />
   </div>
 </template>
@@ -32,6 +33,10 @@ export default {
       required: true,
     },
     isFront: {
+      type: Boolean,
+      default: false,
+    },
+    isFrontAll: {
       type: Boolean,
       default: false,
     },

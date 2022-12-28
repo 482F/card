@@ -41,6 +41,10 @@
       :mode="mode"
       :card="card"
       :is-front="card.showers[id]"
+      :is-front-all="
+        Object.values(card.showers).filter(Boolean).length ===
+        Object.keys(players).length
+      "
       :class="{
         selected: card.selected,
       }"
@@ -51,7 +55,15 @@
         '--z-index': card.zIndex,
       }"
       @mousedown="(e) => onMoveStart(e, card)"
-      @dblclick="() => setCardSide(selecteds, true, [players[id]])"
+      @dblclick="
+        () => {
+          if (!card.showers[id]) {
+            setCardSide(selecteds, true, [players[id]])
+          } else {
+            setCardSide(selecteds, true, Object.values(players))
+          }
+        }
+      "
     />
     <player-positions
       class="player-positions"
