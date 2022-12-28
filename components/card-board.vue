@@ -27,7 +27,7 @@
       class="single-card"
       v-for="(card, i) of cards"
       :key="i"
-      :card-size="cardSize"
+      :card-size="cardHeight"
       :mode="mode"
       :card="card"
       :class="{
@@ -124,8 +124,17 @@ export default {
   },
   computed: {
     boardSize: () => boardSize,
-    cardSize() {
+    cardHeight() {
       return cardSizes[this.mode]
+    },
+    cardWidth() {
+      return Math.round(this.cardHeight * 0.714)
+    },
+    cardHalfHeight() {
+      return Math.round(this.cardHeight / 2)
+    },
+    cardHalfWidth() {
+      return Math.round(this.cardWidth / 2)
     },
   },
   watch: {
@@ -136,11 +145,6 @@ export default {
           card.selected = false
         })
         const originalSelecteds = this.additionalSelect ? this.selecteds : []
-
-        const cardHeight = this.cardSize
-        const cardWidth = Math.round(cardHeight * 0.714)
-        const cardHalfHeight = Math.round(cardHeight / 2)
-        const cardHalfWidth = Math.round(cardWidth / 2)
 
         const selector = {}
         selector.length = {
@@ -155,16 +159,16 @@ export default {
         this.tempSelecteds = [
           ...this.cards.filter((card, i) => {
             const cardCenter = {
-              x: card.coord.x + cardHalfWidth,
-              y: card.coord.y + cardHalfHeight,
+              x: card.coord.x + this.cardHalfWidth,
+              y: card.coord.y + this.cardHalfHeight,
             }
             const distance = {
               x: Math.abs(selector.center.x - cardCenter.x),
               y: Math.abs(selector.center.y - cardCenter.y),
             }
             const lengthSum = {
-              x: cardWidth + selector.length.width,
-              y: cardHeight + selector.length.height,
+              x: this.cardWidth + selector.length.width,
+              y: this.cardHeight + selector.length.height,
             }
             return distance.x < lengthSum.x / 2 && distance.y < lengthSum.y / 2
           }),
@@ -179,9 +183,17 @@ export default {
   methods: {
     getCoord(e) {
       if (e.target.matches('.single-card')) {
+        // console.log(e)
+        const angle = Number(
+          e.target.style.getPropertyValue('--angle').match(/\d+/)[0]
+        )
+        const x = e.offsetX - this.cardHalfWidth
+        const y = e.offsetY - this.cardHalfHeight
+        const r = Math.sqrt(x ** 2 + y ** 2)
+        const theta = Math.atan2(y, x) + (angle * Math.PI) / 180
         return {
-          x: e.offsetX + e.target.offsetLeft,
-          y: e.offsetY + e.target.offsetTop,
+          x: Math.round(Math.cos(theta) * r) + e.target.offsetLeft + this.cardHalfWidth,
+          y: Math.round(Math.sin(theta) * r) + e.target.offsetTop + this.cardHalfHeight,
         }
       } else {
         return {
