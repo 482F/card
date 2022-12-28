@@ -59,8 +59,11 @@
         '--end-x': selectCoords.max.x + 'px',
         '--end-y': selectCoords.max.y + 'px',
         '--z-index': cards.length + 1,
+        '--angle': angle + 'deg',
       }"
-    />
+    >
+      <div class="selector-inner" />
+    </div>
   </div>
 </template>
 
@@ -125,6 +128,7 @@ export default {
   },
   computed: {
     boardSize: () => boardSize,
+    boardHalfSize: () => boardSize / 2,
     cardHeight() {
       return cardSizes[this.mode]
     },
@@ -163,7 +167,17 @@ export default {
           { x: this.selectCoords.min.x, y: this.selectCoords.max.y },
           { x: this.selectCoords.min.x, y: this.selectCoords.min.y },
           { x: this.selectCoords.max.x, y: this.selectCoords.min.y },
-        ]
+        ].map((p) => {
+          const x = p.x - this.boardHalfSize
+          const y = p.y - this.boardHalfSize
+          const r = Math.sqrt(x ** 2 + y ** 2)
+          const theta = Math.atan2(y, x) - this.angle / 180 * Math.PI
+          return {
+            // sin と cos が逆に見えるがなぜか動h
+            x: Math.cos(theta) * r + this.boardHalfSize,
+            y: Math.sin(theta) * r + this.boardHalfSize,
+          }
+        })
         const r = Math.sqrt(this.cardHalfWidth ** 2 + this.cardHalfHeight ** 2)
 
         this.tempSelecteds = [
@@ -200,6 +214,12 @@ export default {
     },
   },
   methods: {
+    getSelectCoord(e) {
+      return {
+        x: e.clientX - this.$refs.cardBoard.offsetLeft,
+        y: e.clientY - this.$refs.cardBoard.offsetTop,
+      }
+    },
     getCoord(e) {
       if (e.target.matches('.single-card')) {
         // console.log(e)
@@ -232,7 +252,7 @@ export default {
         return
       }
       this.selecting = true
-      const coord = this.getCoord(e)
+      const coord = this.getSelectCoord(e)
 
       this.selectCoords.start = { ...coord }
       this.selectCoords.end = { ...coord }
@@ -247,7 +267,7 @@ export default {
       }
     },
     onSelect(e) {
-      const coord = this.getCoord(e)
+      const coord = this.getSelectCoord(e)
       this.selectCoords.end = { ...coord }
       this.selectCoords.min.x = Math.min(
         this.selectCoords.start.x,
@@ -369,13 +389,19 @@ export default {
     z-index: var(--z-index);
   }
   > .selector {
+    transform: rotate(calc(-1 * var(--angle)));
+    height: 100%;
+    width: 100%;
     position: absolute;
-    left: var(--start-x);
-    top: var(--start-y);
-    width: calc(var(--end-x) - var(--start-x));
-    height: calc(var(--end-y) - var(--start-y));
-    z-index: var(--z-index);
-    border: 1px solid gray;
+    > .selector-inner {
+      position: absolute;
+      left: var(--start-x);
+      top: var(--start-y);
+      width: calc(var(--end-x) - var(--start-x));
+      height: calc(var(--end-y) - var(--start-y));
+      z-index: var(--z-index);
+      border: 1px solid gray;
+    }
   }
 }
 </style>
