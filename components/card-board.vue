@@ -1,6 +1,15 @@
 <template>
   <div
     class="card-board"
+    @contextmenu="
+      (e) => {
+        e.preventDefault()
+        if (!e.target.closest('.single-card')) return
+        menu.show = true
+        menu.x = e.clientX + 2
+        menu.y = e.clientY + 2
+      }
+    "
     :class="{
       dragging,
       selecting,
@@ -24,9 +33,9 @@
     @wheel="(e) => onWheel(e)"
   >
     <single-card
-      class="single-card"
       v-for="(card, i) of cards"
       :key="i"
+      class="single-card"
       :card-size="cardHeight"
       :mode="mode"
       :card="card"
@@ -64,10 +73,17 @@
     >
       <div class="selector-inner" />
     </div>
+    <a-context-menu
+      :position-x="menu.x"
+      :position-y="menu.y"
+      v-model="menu.show"
+      :items="menuItems"
+    />
   </div>
 </template>
 
 <script>
+import AContextMenu from '../components/atoms/a-context-menu.vue'
 import SingleCard from '../components/card/single-card.vue'
 import PlayerPositions from '../components/player-positions.vue'
 import { isRectangleCollide } from '../utils/vectors.js'
@@ -80,6 +96,7 @@ const boardSize = 800
 export default {
   name: 'CardBoard',
   components: {
+    AContextMenu,
     SingleCard,
     PlayerPositions,
   },
@@ -100,11 +117,20 @@ export default {
       type: Object,
       required: true,
     },
+    id: {
+      type: String,
+      required: true,
+    },
   },
   data() {
     return {
       dragging: false,
       selecting: false,
+      menu: {
+        x: 0,
+        y: 0,
+        show: false,
+      },
       startCoord: {
         x: 0,
         y: 0,
@@ -127,6 +153,121 @@ export default {
     }
   },
   computed: {
+    sortedPlayers() {
+      return [
+        this.players[this.id],
+        ...Object.entries(this.players)
+          .filter(([id]) => this.id !== id)
+          .map(([, player]) => player),
+      ]
+    },
+    menuItems() {
+      return [
+        {
+          label: '並べる',
+          items: [
+            {
+              label: '扇状に並べる',
+              handler: (e) =>
+                this.lineUp(this.selecteds, e.clientX, e.clientY, 'fan'),
+            },
+            {
+              label: '水平に並べる',
+              handler: (e) =>
+                this.lineUp(this.selecteds, e.clientX, e.clientY, 'horizon'),
+            },
+          ],
+        },
+        {
+          label: '全て裏にする',
+          items: [
+            ...this.sortedPlayers.map((player) => ({
+              label: player.name,
+              color: player.color,
+              icon: player.icon,
+              handler: () => this.setCardSide(this.selecteds, false, [player]),
+            })),
+            {
+              label: '全員',
+              handler: () => this.setCardSide(this.selecteds, false),
+            },
+          ],
+        },
+        {
+          label: '全て表にする',
+          items: [
+            ...this.sortedPlayers.map((player) => ({
+              label: player.name,
+              color: player.color,
+              icon: player.icon,
+              handler: () => this.setCardSide(this.selecteds, true, [player]),
+            })),
+            {
+              label: '全員',
+              handler: () => this.setCardSide(this.selecteds, true),
+            },
+          ],
+        },
+        {
+          label: '分割する',
+          items: [
+            (() => {
+              let leftNum = 0
+              const that = this
+              const component = {
+                data() {
+                  return {
+                    value: 0,
+                  }
+                },
+                render(h) {
+                  return (
+                    <div
+                      style={{
+                        width: '300px',
+                        display: 'flex',
+                        'flex-direction': 'column',
+                        'justify-ontent': 'center',
+                        'align-items': 'center',
+                      }}
+                      vOn:click={(e) => this.$emit('click', e)}
+                    >
+                      {this.value}
+                      <v-slider
+                        style={{
+                          width: '100%',
+                        }}
+                        min={0}
+                        max={that.selecteds.length}
+                        dense
+                        value={this.value}
+                        vOn:input={(newValue) => {
+                          this.value = newValue
+                          leftNum = newValue
+                        }}
+                      />
+                    </div>
+                  )
+                },
+              }
+
+              return {
+                label: '',
+                component,
+                handler: (e) => {
+                  this.separateCards(
+                    this.selecteds,
+                    leftNum,
+                    e.clientX,
+                    e.clientY
+                  )
+                },
+              }
+            })(),
+          ],
+        },
+      ]
+    },
     boardSize: () => boardSize,
     boardHalfSize: () => boardSize / 2,
     cardHeight() {
@@ -171,7 +312,7 @@ export default {
           const x = p.x - this.boardHalfSize
           const y = p.y - this.boardHalfSize
           const r = Math.sqrt(x ** 2 + y ** 2)
-          const theta = Math.atan2(y, x) - this.angle / 180 * Math.PI
+          const theta = Math.atan2(y, x) - (this.angle / 180) * Math.PI
           return {
             // sin と cos が逆に見えるがなぜか動h
             x: Math.cos(theta) * r + this.boardHalfSize,
@@ -222,7 +363,6 @@ export default {
     },
     getCoord(e) {
       if (e.target.matches('.single-card')) {
-        // console.log(e)
         const angle = Number(
           e.target.style.getPropertyValue('--angle').match(/\d+/)[0]
         )
@@ -354,6 +494,15 @@ export default {
       })
       this.$emit('update', changeObj)
     },
+    lineUp(cards, x, y, mode) {
+      console.log(cards)
+    },
+    setCardSide(cards, front, players) {
+      players ??= this.players
+    },
+    separateCards(cards, leftNum, x, y) {
+      console.log({ cards, leftNum, x, y })
+    },
   },
 }
 </script>
@@ -376,7 +525,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  > .single-card {
+  .single-card {
     position: absolute;
     left: var(--x);
     top: var(--y);
