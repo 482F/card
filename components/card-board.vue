@@ -578,7 +578,16 @@ export default {
       })
       this.$emit('update', changeObj)
     },
-    shuffleCards(cards) {},
+    shuffleCards(cards) {
+      const shuffled = [...cards]
+        .sort((a, b) => Math.random() - 0.5)
+        .map((card) => ({ ...card.coord, zIndex: card.zIndex }))
+      for (let i = 0; i < cards.length; i++) {
+        cards[i].coord.x = shuffled[i].x
+        cards[i].coord.y = shuffled[i].y
+        cards[i].zIndex = shuffled[i].zIndex
+      }
+    },
     separateCards(cards, leftNum, e) {
       const left = cards.slice(0, leftNum)
       const right = cards.slice(leftNum)
