@@ -146,6 +146,7 @@ export default {
   box-sizing: content-box;
   align-items: center;
   --ellipse-color: var(--red);
+  border: 1px solid gray;
   &.front {
     --ellipse-color: white;
   }
