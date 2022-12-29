@@ -396,7 +396,7 @@ export default {
     getCoord(e) {
       if (e.target.matches('.single-card')) {
         const angle = Number(
-          e.target.style.getPropertyValue('--angle').match(/\d+/)[0]
+          e.target.style.getPropertyValue('--angle').match(/-?\d+/)[0]
         )
         const x = e.offsetX - this.cardHalfWidth
         const y = e.offsetY - this.cardHalfHeight
@@ -492,6 +492,9 @@ export default {
 
       this.selecteds.forEach((selected) => {
         selected.originalCoord = { ...selected.coord }
+        if (!e.shiftKey) {
+          selected.angle = -this.angle
+        }
       })
       this.dragging = true
       this.startCoord = undefined
