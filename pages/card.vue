@@ -150,8 +150,8 @@ export default {
         this.$set(targetObj, splittedKeys.at(-1), value)
       }
     },
-    changePublic(obj) {
-      this.changeValue(obj)
+    async changePublic(obj) {
+      await this.changeValue(obj)
       this.send('changePublic', obj)
       if (obj.mode) {
         this.send('deleteChangeds', ['^cards'])
@@ -168,7 +168,11 @@ export default {
       this.socket.onmessage = (e) => this.onMessage(e)
       await new Promise((resolve) => (this.socket.onopen = resolve))
       this.send('login', { password: this.password, id: this.id })
-      await new Promise((resolve) => (this.initialized = resolve))
+
+      const initialObj = await new Promise(
+        (resolve) => (this.initialize = resolve)
+      )
+      await this.changeValue(initialObj)
 
       if (!this.players[this.id]) {
         this.changePublic({
