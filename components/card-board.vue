@@ -629,10 +629,13 @@ export default {
     separateCards(cards, leftNum, e) {
       const left = cards.slice(0, leftNum)
       const right = cards.slice(leftNum)
-      this.lineUp(left, { clientX: e.clientX, clientY: e.clientY }, 'horizon')
+      this.lineUp(left, { pageX: e.pageX, pageY: e.pageY }, 'horizon')
       this.lineUp(
         right,
-        { clientX: e.clientX, clientY: e.clientY + 300 },
+        {
+          pageX: e.pageX,
+          pageY: e.pageY + this.cardHalfHeight,
+        },
         'horizon'
       )
     },
