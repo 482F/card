@@ -534,7 +534,8 @@ export default {
     rotateSelecteds(sign) {
       const changeObj = {}
       this.selecteds.forEach((selected) => {
-        changeObj[`cards-${selected.index}-angle`] = selected.angle + 30 * sign
+        changeObj[`cards-${selected.index}-angle`] =
+          (selected.angle + 30 * sign + 360) % 360
       })
       this.$emit('update', changeObj)
     },
