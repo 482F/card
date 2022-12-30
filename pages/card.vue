@@ -60,6 +60,7 @@
 import EntranceForm from '../components/entrance-form.vue'
 import CardBoard from '../components/card-board.vue'
 import { cards } from '../components/card/single-card.vue'
+import { angleToRadian } from '../utils/angles.js'
 
 const modes = [
   { text: 'uno', value: 'uno' },
@@ -78,7 +79,7 @@ export default {
     boardSize: () => boardSize,
     boardDiagonalSize: () => Math.sqrt(2 * boardSize ** 2),
     radian() {
-      return (this.players[this.id]?.angle * Math.PI) / 180
+      return angleToRadian(this.players[this.id]?.angle)
     },
   },
   data() {

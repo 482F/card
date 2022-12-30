@@ -102,6 +102,8 @@ import AContextMenu from '../components/atoms/a-context-menu.vue'
 import SingleCard from '../components/card/single-card.vue'
 import PlayerPositions from '../components/player-positions.vue'
 import { isRectangleCollide } from '../utils/vectors.js'
+import { angleToRadian } from '../utils/angles.js'
+
 const cardSizes = {
   uno: 120,
   trump: 120,
@@ -334,7 +336,7 @@ export default {
           const x = p.x - this.boardHalfSize
           const y = p.y - this.boardHalfSize
           const r = Math.sqrt(x ** 2 + y ** 2)
-          const theta = Math.atan2(y, x) - (this.angle / 180) * Math.PI
+          const theta = Math.atan2(y, x) - angleToRadian(this.angle)
           return {
             // sin と cos が逆に見えるがなぜか動h
             x: Math.cos(theta) * r + this.boardHalfSize,
@@ -350,7 +352,7 @@ export default {
               y: card.coord.y + this.cardHalfHeight,
             }
 
-            const deltaRadian = (card.angle * Math.PI) / 180
+            const deltaRadian = angleToRadian(card.angle)
             const radians = [
               Math.atan2(this.cardHalfHeight, this.cardHalfWidth) + deltaRadian,
               Math.atan2(this.cardHalfWidth, this.cardHalfHeight) + deltaRadian,
@@ -390,7 +392,7 @@ export default {
         const x = rawCoord.x - this.boardHalfSize
         const y = rawCoord.y - this.boardHalfSize
         const r = Math.sqrt(x ** 2 + y ** 2)
-        const theta = Math.atan2(y, x) - (this.angle * Math.PI) / 180
+        const theta = Math.atan2(y, x) - angleToRadian(this.angle)
         return {
           x: Math.cos(theta) * r + this.boardHalfSize,
           y: Math.sin(theta) * r + this.boardHalfSize,
@@ -406,7 +408,7 @@ export default {
         const x = e.offsetX - this.cardHalfWidth
         const y = e.offsetY - this.cardHalfHeight
         const r = Math.sqrt(x ** 2 + y ** 2)
-        const theta = Math.atan2(y, x) + (angle * Math.PI) / 180
+        const theta = Math.atan2(y, x) + angleToRadian(angle)
         return {
           x:
             Math.round(Math.cos(theta) * r) +
@@ -560,7 +562,7 @@ export default {
             ['x', -this.angle],
             ['y', -this.angle + 90],
           ].map(([label, angle]) => {
-            const radian = (angle * Math.PI) / 180
+            const radian = angleToRadian(angle)
             return [
               label,
               {
