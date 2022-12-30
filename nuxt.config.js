@@ -4,9 +4,13 @@ export default {
   // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
   ssr: false,
 
+  publicRuntimeConfig: {
+    HOST: process.env.HOST,
+  },
+
   server: {
     port: 13245,
-    host: 'localhost',
+    host: process.env.HOST,
   },
   // Global page headers: https://go.nuxtjs.dev/config-head
   serverMiddleware: [{ path: '/', handler: '~/server-middleware/ws.js' }],
