@@ -338,7 +338,6 @@ export default {
           const r = Math.sqrt(x ** 2 + y ** 2)
           const theta = Math.atan2(y, x) - angleToRadian(this.angle)
           return {
-            // sin と cos が逆に見えるがなぜか動h
             x: Math.cos(theta) * r + this.boardHalfSize,
             y: Math.sin(theta) * r + this.boardHalfSize,
           }
