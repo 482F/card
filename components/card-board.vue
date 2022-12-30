@@ -381,7 +381,7 @@ export default {
           e.target.style.getPropertyValue('--angle').match(/-?\d+/)[0]
         )
         const offsetCoord = rotatePoint(
-          { x: e.offsetX, y: offsetY },
+          { x: e.offsetX, y: e.offsetY },
           angleToRadian(angle),
           { x: this.cardHalfWidth, y: this.cardHalfHeight }
         )
